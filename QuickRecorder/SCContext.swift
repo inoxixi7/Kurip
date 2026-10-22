@@ -488,7 +488,7 @@ class SCContext {
         if let previewImage = previewImage, let screen = getScreenWithMouse() {
             let contentView = NSHostingView(rootView: PreviewView(frame: previewImage, filePath: path))
             previewWindow.contentView = contentView
-            previewWindow.setFrameOrigin(NSPoint(x: screen.frame.maxX - 280, y: screen.frame.minY + 20))
+            previewWindow.setFrameOrigin(NSPoint(x: screen.frame.maxX - 300, y: screen.frame.minY + 16))
             previewWindow.orderFront(self)
         }
     }

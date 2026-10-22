@@ -20,84 +20,79 @@ struct PreviewView: View {
     @AppStorage("trimAfterRecord")  private var trimAfterRecord: Bool = false
     
     var body: some View {
-        ZStack(alignment: Alignment(horizontal: .leading, vertical: .top)) {
+        // persistent card: what was saved, where, and the next steps, without having to hover to discover them
+        VStack(spacing: 8) {
             ZStack {
-                Color.clear
-                    .background(.ultraThickMaterial)
-                    .environment(\.controlActiveState, .active)
-                    .cornerRadius(6)
-                ZStack {
-                    Image(nsImage: frame)
-                        .resizable().scaledToFit()
-                        .shadow(color: .black.opacity(0.2), radius: 3, y: 1.5)
-                    if isHovered2 {
-                        Button(action: {
-                            if fd.fileExists(atPath: filePath) {
-                                NSWorkspace.shared.open(filePath.url)
-                                closeWindow()
-                            }
-                        }, label: {
-                            ZStack {
-                                Image(systemName: "circle.fill")
-                                    .font(.system(size: 49))
-                                    .foregroundStyle(.black)
-                                    .opacity(0.5)
-                                Image(systemName: "play.circle")
-                                    .font(.system(size: 50))
-                                    .foregroundStyle(.white)
-                                    .shadow(radius: 4)
-                            }
-                        }).buttonStyle(.plain)
-                    }
+                Image(nsImage: frame)
+                    .resizable().scaledToFit()
+                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                    .shadow(color: .black.opacity(0.2), radius: 3, y: 1.5)
+                if isHovered2 {
+                    Button(action: {
+                        if fd.fileExists(atPath: filePath) {
+                            NSWorkspace.shared.open(filePath.url)
+                            closeWindow()
+                        }
+                    }, label: {
+                        Image(systemName: "play.circle.fill")
+                            .font(.system(size: 44))
+                            .symbolRenderingMode(.palette)
+                            .foregroundStyle(.white, .black.opacity(0.5))
+                            .shadow(radius: 4)
+                    }).buttonStyle(.plain)
                 }
-                .onHover(perform: { isHovered2 = $0 })
-                .padding(8)
             }
-            if isHovered {
-                HoverButton(color: .buttonRed, secondaryColor: .buttonRedDark,
-                            action: { closeWindow() }, label: {
-                    ZStack {
-                        Image(systemName: "circle.fill")
-                            .font(.title)
-                            .foregroundStyle(.white)
-                        Image(systemName: "circle.fill")
-                            .font(.title2)
-                        Image(systemName: "xmark")
-                            .font(.system(size: 10, weight: .black))
-                            .foregroundStyle(.white)
-                    }
-                }).padding(4)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onHover(perform: { isHovered2 = $0 })
+            HStack(spacing: 6) {
+                Image(systemName: "checkmark.circle.fill").font(.system(size: 15)).foregroundStyle(.green)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("Recording Completed".local).font(.system(size: 11, weight: .semibold))
+                    Text(filePath.lastPathComponent).font(.system(size: 10)).foregroundStyle(.secondary)
+                        .lineLimit(1).truncationMode(.middle)
+                }
+                Spacer(minLength: 0)
+            }
+            HStack(spacing: 6) {
+                PreviewAction(symbol: "folder", title: "Show in Finder") { showInFinder() }
+                if !trimAfterRecord && ["mp4", "mov"].contains(filePath.pathExtension) {
+                    PreviewAction(symbol: "scissors", title: "Trim") { trim() }
+                }
+                PreviewAction(symbol: "square.and.arrow.up", title: "Share") { showSharingServicePicker(for: filePath.url) }
             }
         }
-        .overlay(alignment: .bottom) {
+        .padding(10)
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(.regularMaterial))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(.primary.opacity(0.1)))
+        .environment(\.controlActiveState, .active)
+        .overlay(alignment: .topLeading) {
             if isHovered {
-                HStack(spacing: 2) {
-                    PreviewAction(symbol: "folder", help: "Show in Finder") { showInFinder() }
-                    if !trimAfterRecord && ["mp4", "mov"].contains(filePath.pathExtension) {
-                        PreviewAction(symbol: "scissors", help: "Trim") { trim() }
-                    }
-                    PreviewAction(symbol: "square.and.arrow.up", help: "Share...") { showSharingServicePicker(for: filePath.url) }
+                Button { closeWindow() } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 18))
+                        .symbolRenderingMode(.palette)
+                        .foregroundStyle(.white, .black.opacity(0.6))
                 }
-                .padding(3)
-                .background(Capsule().fill(.ultraThinMaterial))
-                .shadow(color: .black.opacity(0.25), radius: 4, y: 1)
-                .padding(.bottom, 12)
+                .buttonStyle(.plain)
+                .help("Close".local)
+                .offset(x: -5, y: -5)
                 .transition(.opacity)
             }
         }
+        .padding(6) // room for the close button and stroke
         .animation(.easeOut(duration: 0.15), value: isHovered)
         .opacity(opacity)
         .onHover(perform: { isHovered = $0 })
         .background(WindowAccessor(onWindowOpen: { w in nsWindow = w }))
         .onAppear {
             withAnimation(.easeIn(duration: 0.3)) { opacity = 1.0 }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
                 if !isHovered && !isSharing { closeWindow() }
             }
         }
         .onChange(of: isHovered) { newValue in
             if !newValue {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
                     if !isHovered && !isSharing { closeWindow() }
                 }
             }
@@ -192,7 +187,7 @@ struct PreviewView: View {
                 if service != nil {
                     DispatchQueue.main.async { closeWindow() }
                 } else {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
                         if !isHovered && !isSharing { closeWindow() }
                     }
                 }
@@ -215,20 +210,23 @@ class SharingServicePickerDelegate: NSObject, NSSharingServicePickerDelegate {
 
 private struct PreviewAction: View {
     let symbol: String
-    let help: String
+    let title: String
     let action: () -> Void
     @State private var hovering = false
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: symbol)
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(.primary)
-                .frame(width: 28, height: 24)
-                .background(Capsule().fill(.primary.opacity(hovering ? 0.15 : 0)))
+            VStack(spacing: 3) {
+                Image(systemName: symbol).font(.system(size: 13, weight: .medium)).frame(height: 16)
+                Text(title.local).font(.system(size: 10, weight: .medium))
+                    .lineLimit(1).minimumScaleFactor(0.8)
+            }
+            .foregroundStyle(.primary)
+            .frame(maxWidth: .infinity, minHeight: 40)
+            .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(.primary.opacity(hovering ? 0.14 : 0.07)))
+            .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PressStyle())
         .onHover { hovering = $0 }
-        .help(help.local)
     }
 }

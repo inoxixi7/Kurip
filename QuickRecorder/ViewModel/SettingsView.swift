@@ -63,7 +63,8 @@ struct SettingsView: View {
                     Label { Text(LocalizedStringKey(item.rawValue)) } icon: { Image(item.icon) }
                         .padding(.vertical, 2)
                 }
-                .navigationSplitViewColumnWidth(190)
+                .frame(minWidth: 190) // the column width alone is ignored in the Settings scene
+                .navigationSplitViewColumnWidth(min: 200, ideal: 200, max: 200)
                 .modifier(NoSidebarToggle())
                 .searchable(text: $query, placement: .sidebar)
                 // jump to the first hit, as System Settings does
@@ -88,6 +89,13 @@ struct SettingsView: View {
                 .padding(.top, 9)
             }.frame(width: 600, height: 512)
         }
+    }
+}
+
+// a footer row that sits on the page, not inside a grouped card
+private struct BareFormRow: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(macOS 13, *) { Section {} footer: { content } } else { content }
     }
 }
 
@@ -159,6 +167,8 @@ struct GeneralView: View {
                         .foregroundColor(.secondary)
                 }
             }
+            .frame(maxWidth: .infinity)
+            .modifier(BareFormRow())
         }
         .onAppear{ if #available(macOS 13, *) { launchAtLogin = (SMAppService.mainApp.status == .enabled) }}
         .onChange(of: showMenubar) { _ in updateStatusBar() }

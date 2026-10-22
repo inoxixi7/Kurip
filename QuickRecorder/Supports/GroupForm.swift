@@ -31,26 +31,45 @@ struct SForm<Content: View>: View {
     @ViewBuilder let content: () -> Content
     
     var body: some View {
-        VStack(spacing: spacing) {
-            content()
-            if !noSpacer {
-                Spacer().frame(minHeight: 0)
+        // native grouped form (System Settings look) on 13+; the blocklist keeps its own fill-the-page layout
+        if #available(macOS 13, *), !noSpacer {
+            Form { content() }
+                .formStyle(.grouped)
+                .environment(\.nativeForm, true)
+        } else {
+            VStack(spacing: spacing) {
+                content()
+                if !noSpacer {
+                    Spacer().frame(minHeight: 0)
+                }
             }
+            .padding(.bottom, noSpacer ? 0 : -spacing)
+            .padding()
+            .frame(maxWidth: .infinity)
         }
-        .padding(.bottom, noSpacer ? 0 : -spacing)
-        .padding()
-        .frame(maxWidth: .infinity)
-        
+    }
+}
+
+private struct NativeFormKey: EnvironmentKey { static let defaultValue = false }
+extension EnvironmentValues {
+    var nativeForm: Bool {
+        get { self[NativeFormKey.self] }
+        set { self[NativeFormKey.self] = newValue }
     }
 }
 
 struct SGroupBox<Content: View>: View {
     var label: LocalizedStringKey? = nil
     @ViewBuilder let content: () -> Content
+    @Environment(\.nativeForm) private var nativeForm
 
     var body: some View {
-        GroupBox(label: label != nil ? Text(label!).font(.headline) : nil) {
-            VStack(spacing: 10) { content() }.padding(5)
+        if nativeForm {
+            Section { content() } header: { if let label { Text(label) } }
+        } else {
+            GroupBox(label: label != nil ? Text(label!).font(.headline) : nil) {
+                VStack(spacing: 10) { content() }.padding(5)
+            }
         }
     }
 }
@@ -64,14 +83,17 @@ struct SItem<Content: View>: View {
         HStack(spacing: spacing) {
             if let label = label { Text(label) }
             Spacer()
-            content()
+            content().labelsHidden()
         }.frame(height: 16)
     }
 }
 
 struct SDivider: View {
+    @Environment(\.nativeForm) private var nativeForm
+
     var body: some View {
-        Divider().opacity(0.5)
+        // a native form draws its own row separators
+        if !nativeForm { Divider().opacity(0.5) }
     }
 }
 
@@ -198,6 +220,7 @@ struct SPicker<T: Hashable, Content: View, Style: PickerStyle>: View {
             Spacer()
             if let tips = tips { SInfoButton(tips: tips) }
             Picker(selection: $selection, content: { content() }, label: {})
+                .labelsHidden() // an empty label still takes a column inside a Form
                 .fixedSize()
                 .pickerStyle(style)
                 .buttonStyle(.borderless)
@@ -216,16 +239,28 @@ struct SToggle: View {
         self.tips = tips
     }
     
+    @Environment(\.nativeForm) private var nativeForm
+
     var body: some View {
-        HStack(spacing: 4) {
-            Text(title)
-            Spacer()
-            if let tips = tips { SInfoButton(tips: tips) }
-            Toggle("", isOn: $isOn)
-                .toggleStyle(.switch)
-                .scaleEffect(0.7)
-                .frame(width: 32)
-        }.frame(height: 16)
+        if nativeForm {
+            // a real small switch: scaling a regular one leaves its layout box (and the label) misaligned
+            HStack(spacing: 4) {
+                Text(title)
+                Spacer()
+                if let tips = tips { SInfoButton(tips: tips) }
+                Toggle("", isOn: $isOn).labelsHidden().toggleStyle(.switch).controlSize(.mini)
+            }
+        } else {
+            HStack(spacing: 4) {
+                Text(title)
+                Spacer()
+                if let tips = tips { SInfoButton(tips: tips) }
+                Toggle("", isOn: $isOn)
+                    .toggleStyle(.switch)
+                    .scaleEffect(0.7)
+                    .frame(width: 32)
+            }.frame(height: 16)
+        }
     }
 }
 
@@ -252,6 +287,7 @@ struct SSteper: View {
             Spacer()
             if let tips = tips { SInfoButton(tips: tips) }
             TextField("", value: $value, formatter: NumberFormatter())
+                .labelsHidden()
                 .textFieldStyle(.roundedBorder)
                 .multilineTextAlignment(.trailing)
                 .frame(width: width)
@@ -260,6 +296,7 @@ struct SSteper: View {
                     if newValue < min { value = min }
                 }
             Stepper("", value: $value)
+                .labelsHidden()
                 .padding(.leading, -6)
         }.frame(height: 16)
     }
