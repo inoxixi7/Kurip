@@ -373,7 +373,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 let offset = (!showOnDock && !showMenubar) ? 127 : 0
                 let width = isMacOS12 ? 800 : 928
                 let mainPanel = EscPanel(contentRect: NSRect(x: 0, y: 0, width: width + offset, height: 100), styleMask: [.fullSizeContentView, .nonactivatingPanel], backing: .buffered, defer: false)
-                mainPanel.contentView = NSHostingView(rootView: ContentView())
+                if #available(macOS 13, *) {
+                    // same panel as the menu bar popover, as a floating card
+                    let shape = RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    let host = NSHostingView(rootView: ContentViewNew()
+                        .clipShape(shape)
+                        .overlay(shape.strokeBorder(.primary.opacity(0.1))))
+                    mainPanel.contentView = host
+                    mainPanel.setContentSize(host.fittingSize)
+                    mainPanel.hasShadow = true
+                } else {
+                    mainPanel.contentView = NSHostingView(rootView: ContentView())
+                }
                 mainPanel.title = "Kurip".local
                 mainPanel.isOpaque = false
                 mainPanel.level = .floating
