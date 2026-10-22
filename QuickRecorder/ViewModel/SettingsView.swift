@@ -23,6 +23,9 @@ struct SettingsView: View {
                 NavigationLink(destination: RecorderView(), tag: "Recorder", selection: $selectedItem) {
                     Label("Recorder", image: "record")
                 }
+                NavigationLink(destination: AudioView(), tag: "Audio", selection: $selectedItem) {
+                    Label("Audio", image: "audio")
+                }
                 NavigationLink(destination: OutputView(), tag: "Output", selection: $selectedItem) {
                     Label("Output", image: "film")
                 }
@@ -42,8 +45,8 @@ struct SettingsView: View {
 struct GeneralView: View {
     @AppStorage("countdown") private var countdown: Int = 0
     @AppStorage("poSafeDelay") private var poSafeDelay: Int = 1
-    @AppStorage("showOnDock") private var showOnDock: Bool = true
-    @AppStorage("showMenubar") private var showMenubar: Bool = false
+    @AppStorage("showOnDock") private var showOnDock: Bool = false
+    @AppStorage("showMenubar") private var showMenubar: Bool = true
     
     @State private var launchAtLogin = false
 
@@ -155,22 +158,47 @@ struct RecorderView: View {
     }
 }
 
-struct OutputView: View {
-    @AppStorage("encoder")          private var encoder: Encoder = .h265
-    @AppStorage("videoFormat")      private var videoFormat: VideoFormat = .mp4
+struct AudioView: View {
+    @AppStorage("recordWinSound")   private var recordWinSound: Bool = true
+    @AppStorage("recordMic")        private var recordMic: Bool = false
+    @AppStorage("micDevice")        private var micDevice: String = "default"
     @AppStorage("audioFormat")      private var audioFormat: AudioFormat = .aac
     @AppStorage("audioQuality")     private var audioQuality: AudioQuality = .high
-    @AppStorage("pixelFormat")      private var pixelFormat: PixFormat = .delault
-    @AppStorage("background")       private var background: BackgroundType = .wallpaper
     @AppStorage("remuxAudio")       private var remuxAudio: Bool = true
     @AppStorage("enableAEC")        private var enableAEC: Bool = true
     @AppStorage("AECLevel")         private var AECLevel: String = "min"
-    @AppStorage("withAlpha")        private var withAlpha: Bool = false
-    @AppStorage("saveDirectory")    private var saveDirectory: String?
+    @State private var micList = SCContext.getMicrophone()
 
     var body: some View {
         SForm(spacing: 30) {
-            SGroupBox(label: "Audio") {
+            SGroupBox(label: "Source") {
+                SToggle("App's Audio", isOn: $recordWinSound)
+                SDivider()
+                SToggle("Microphone", isOn: $recordMic)
+                    .onChange(of: recordMic) { _ in Task { await SCContext.performMicCheck() }}
+                SDivider()
+                SPicker("Input Device", selection: $micDevice) {
+                    Text("Default".local).tag("default")
+                    ForEach(micList, id: \.self) { device in
+                        Text(device.localizedName).tag(device.localizedName)
+                    }
+                }.disabled(!recordMic)
+                SDivider()
+                if #available(macOS 13, *) {
+                    SToggle("Record Microphone to Main Track", isOn: $remuxAudio).disabled(!recordMic || !recordWinSound)
+                    SDivider()
+                }
+                SToggle("Enable Acoustic Echo Cancellation", isOn: $enableAEC).disabled(!recordMic)
+                if #available(macOS 14, *) {
+                    SDivider()
+                    SPicker("Audio Ducking Level", selection: $AECLevel) {
+                        Text("Min").tag("min")
+                        Text("Mid").tag("mid")
+                        Text("Max").tag("max")
+                    }.disabled(!recordMic || !enableAEC)
+                }
+            }
+            SGroupBox(label: "File") {
                 SPicker("Quality", selection: $audioQuality) {
                     if audioFormat == .alac || audioFormat == .flac {
                         Text("Lossless").tag(audioQuality)
@@ -188,21 +216,21 @@ struct OutputView: View {
                     Text("FLAC (Lossless)").tag(AudioFormat.flac)
                     Text("Opus").tag(AudioFormat.opus)
                 }
-                SDivider()
-                if #available(macOS 13, *) {
-                    SToggle("Record Microphone to Main Track", isOn: $remuxAudio)
-                    SDivider()
-                }
-                SToggle("Enable Acoustic Echo Cancellation", isOn: $enableAEC)
-                if #available(macOS 14, *) {
-                    SDivider()
-                    SPicker("Audio Ducking Level", selection: $AECLevel) {
-                        Text("Min").tag("min")
-                        Text("Mid").tag("mid")
-                        Text("Max").tag("max")
-                    }.disabled(!enableAEC)
-                }
             }
+        }
+    }
+}
+
+struct OutputView: View {
+    @AppStorage("encoder")          private var encoder: Encoder = .h265
+    @AppStorage("videoFormat")      private var videoFormat: VideoFormat = .mp4
+    @AppStorage("pixelFormat")      private var pixelFormat: PixFormat = .delault
+    @AppStorage("background")       private var background: BackgroundType = .wallpaper
+    @AppStorage("withAlpha")        private var withAlpha: Bool = false
+    @AppStorage("saveDirectory")    private var saveDirectory: String?
+
+    var body: some View {
+        SForm(spacing: 30) {
             SGroupBox(label: "Video") {
                 SPicker("Format", selection: $videoFormat) {
                     Text("MOV").tag(VideoFormat.mov)
@@ -329,8 +357,8 @@ extension KeyboardShortcuts.Name {
     static let startWithArea = Self("startWithArea")
     static let screenMagnifier = Self("screenMagnifier")
     static let saveFrame = Self("saveFrame")
-    static let pauseResume = Self("pauseResume")
-    static let stop = Self("stop")
+    static let pauseResume = Self("pauseResume", default: .init(.one, modifiers: [.command, .shift]))
+    static let stop = Self("stop", default: .init(.two, modifiers: [.command, .shift]))
     static let showPanel = Self("showPanel")
 }
 

@@ -25,6 +25,7 @@ class SCContext {
     static var frameCache: CMSampleBuffer?
     static var filter: SCContentFilter?
     static var isMagnifierEnabled = false
+    static var restoreRecordMic: Bool? // set by AppleScript "microphone" override, restored once the recording stops
     static var saveFrame = false
     static var isPaused = false
     static var isResume = false
@@ -327,6 +328,7 @@ class SCContext {
     }
     
     static func stopRecording() {
+        defer { if let m = restoreRecordMic { ud.set(m, forKey: "recordMic"); restoreRecordMic = nil } }
         if ud.bool(forKey: "preventSleep") { SleepPreventer.shared.allowSleep() }
         autoStop = 0
         lastPTS = nil

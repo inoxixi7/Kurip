@@ -114,8 +114,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     var presenterType = "OFF"
     var frameQueue = FixedLengthArray<CMTime>(maxLength: 20)
     
-    @AppStorage("showOnDock")       var showOnDock: Bool = true
-    @AppStorage("showMenubar")      var showMenubar: Bool = false
+    @AppStorage("showOnDock")       var showOnDock: Bool = false
+    @AppStorage("showMenubar")      var showMenubar: Bool = true
     @AppStorage("enableAEC")        var enableAEC: Bool = true
     @AppStorage("recordMic")        var recordMic: Bool = false
     @AppStorage("micDevice")        var micDevice: String = "default"
@@ -244,8 +244,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 "remuxAudio": isMacOS12 ? false : true,
                 "recordWinSound": isMacOS12 ? false : true,
                 "trimAfterRecord": false,
-                "showOnDock": true,
-                "showMenubar": false,
+                "showOnDock": false,
+                "showMenubar": true,
                 "enableAEC": true,
                 "AECLevel": "min",
                 "recordHDR": false,

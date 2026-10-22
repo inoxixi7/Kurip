@@ -19,8 +19,8 @@ struct ContentViewNew: View {
     @AppStorage("enableAEC") private var enableAEC: Bool = true
     @AppStorage("recordMic") private var recordMic: Bool = false
     @AppStorage("micDevice") private var micDevice: String = "default"
-    @AppStorage("showOnDock") private var showOnDock: Bool = true
-    @AppStorage("showMenubar") private var showMenubar: Bool = false
+    @AppStorage("showOnDock") private var showOnDock: Bool = false
+    @AppStorage("showMenubar") private var showMenubar: Bool = true
 
     var appDelegate = AppDelegate.shared
     

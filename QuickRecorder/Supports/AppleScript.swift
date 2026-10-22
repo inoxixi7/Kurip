@@ -193,13 +193,13 @@ class recordAudio: NSScriptCommand {
         }
         SCContext.updateAvailableContent {
             DispatchQueue.main.async {
-                let m = UserDefaults.standard.bool(forKey: "recordMic")
                 if let mic = self.evaluatedArguments!["mic"] as? Bool {
+                    // recording starts asynchronously, so only restore the setting when it stops
+                    SCContext.restoreRecordMic = UserDefaults.standard.bool(forKey: "recordMic")
                     UserDefaults.standard.set(mic, forKey: "recordMic")
                 }
                 closeAllWindow()
                 AppDelegate.shared.prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil)
-                UserDefaults.standard.set(m, forKey: "recordMic")
             }
         }
         return nil
