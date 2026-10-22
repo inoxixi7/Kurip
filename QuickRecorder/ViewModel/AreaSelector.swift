@@ -162,7 +162,7 @@ struct AreaSelector: View {
             TimerButton(autoStop: $autoStop)
             StartButton { startRecording() }
         }
-        .padding(.horizontal, 14)
+        .padding(.leading, 14).padding(.trailing, 24)
         .frame(minWidth: 860, minHeight: 88, maxHeight: 88)
         .fixedSize(horizontal: true, vertical: false) // grows for long translations
         .background(
@@ -525,13 +525,13 @@ struct TimerButton: View {
                 Image(systemName: "timer")
                 if autoStop > 0 { Text("\(autoStop)′").monospacedDigit() }
             }
-            .font(.system(size: 12, weight: .semibold))
+            .font(.system(size: 14, weight: .semibold))
             .foregroundStyle(autoStop > 0 ? Color.accentColor : .secondary)
-            .padding(.horizontal, autoStop > 0 ? 8 : 0)
-            .frame(minWidth: 30, minHeight: 30)
-            .background(Capsule().fill(.primary.opacity(0.06)))
+            .padding(.horizontal, autoStop > 0 ? 10 : 0)
+            .frame(minWidth: 34, minHeight: 34) // same footprint as StartButton
+            .background(Capsule().fill(.primary.opacity(0.08)))
         })
-        .buttonStyle(.plain)
+        .buttonStyle(PressStyle())
         .help(" Stop after".local + "…")
         .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom, content: {
             HStack {

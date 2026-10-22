@@ -108,7 +108,7 @@ struct AppSelector: View {
                     TimerButton(autoStop: $autoStop)
                     StartButton { startRecording() }.disabled(selected.isEmpty)
                 }
-                .padding(.horizontal, 24)
+                .padding(.leading, 24).padding(.trailing, 36)
                 .frame(height: 76)
                 Spacer()
             }.padding(.top, -5)

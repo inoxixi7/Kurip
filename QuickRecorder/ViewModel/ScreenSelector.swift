@@ -98,7 +98,7 @@ struct ScreenSelector: View {
                     TimerButton(autoStop: $autoStop)
                     StartButton { startRecording() }.disabled(selected == nil)
                 }
-                .padding(.horizontal, 24)
+                .padding(.leading, 24).padding(.trailing, 36)
                 .frame(height: 76)
                 Spacer()
             }

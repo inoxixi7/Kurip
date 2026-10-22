@@ -44,7 +44,7 @@ struct HighlightMask: View {
                 }
                 .focusable(false)
                 .frame(width: 700, height: 76)
-                .padding(.horizontal, 20)
+                .padding(.leading, 20).padding(.trailing, 32)
                 .onDisappear {
                     if let mask = WindowHighlighter.shared.mask {
                         mask.close()
