@@ -74,6 +74,8 @@ struct QuickRecorderApp: App {
                             if let w = w {
                                 //w.level = .floating
                                 w.titlebarSeparatorStyle = .none
+                                // macOS 13+ uses NavigationSplitView, which sizes its own sidebar
+                                if #available(macOS 13, *) { w.orderFront(nil); return }
                                 guard let nsSplitView = findNSSplitVIew(view: w.contentView),
                                       let controller = nsSplitView.delegate as? NSSplitViewController else { return }
                                 controller.splitViewItems.first?.canCollapse = false

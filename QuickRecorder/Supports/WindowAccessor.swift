@@ -27,7 +27,10 @@ struct WindowAccessor: NSViewRepresentable {
         // wait for the real attach: reading view.window on the next runloop tick can still be nil
         let view = WindowObserverView()
         view.onAttach = { window in
-            window.delegate = context.coordinator
+            // taking over the delegate of a SwiftUI window disables its own handling (e.g. the floating sidebar), so only when needed
+            if onWindowActive != nil || onWindowDeactivate != nil || onWindowClose != nil {
+                window.delegate = context.coordinator
+            }
             context.coordinator.window = window
             self.onWindowOpen?(window)
         }

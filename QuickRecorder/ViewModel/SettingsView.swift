@@ -11,35 +11,89 @@ import ServiceManagement
 import KeyboardShortcuts
 import MatrixColorSelector
 
+private enum SettingsPage: String, CaseIterable, Identifiable {
+    case general = "General", recorder = "Recorder", audio = "Audio", output = "Output", hotkey = "Hotkey", blocklist = "Blocklist"
+    var id: Self { self }
+    var icon: String {
+        switch self {
+        case .general: "gear"
+        case .recorder: "record"
+        case .audio: "audio"
+        case .output: "film"
+        case .hotkey: "hotkey"
+        case .blocklist: "blacklist"
+        }
+    }
+    // the rows on each page, so the sidebar search finds a page by any setting on it
+    var keywords: [String] {
+        switch self {
+        case .general: ["Startup", "Launch at Login", "Show Kurip on Dock", "Show Kurip on Menu Bar", "Language", "Update"]
+        case .recorder: ["Delay Before Recording", "Presenter Overlay Delay", "Custom Background Color", "Mini size Menu Bar controller", "Prevent Mac from sleeping while recording", "Show floating preview after recording", "Open video trimmer after recording", "Exclude Kurip itself", "Include Menu Bar in Recording", "Hide Control Center Icons", "Highlight the Mouse Cursor", "Exclude Files on Desktop"]
+        case .audio: ["Source", "App's Audio", "Microphone", "Record Microphone to Main Track", "Enable Acoustic Echo Cancellation", "File"]
+        case .output: ["Video", "Recording with Alpha Channel", "Save", "Output Folder"]
+        case .hotkey: ["Open Main Panel", "Stop Recording", "Pause / Resume", "Record System Audio", "Record Current Screen", "Record Topmost Window", "Select Area to Record", "Save Current Frame", "Toggle Screen Magnifier"]
+        case .blocklist: []
+        }
+    }
+    func matches(_ query: String) -> Bool {
+        query.isEmpty || ([rawValue] + keywords).contains { $0.local.localizedCaseInsensitiveContains(query) || $0.localizedCaseInsensitiveContains(query) }
+    }
+    @ViewBuilder var view: some View {
+        switch self {
+        case .general: GeneralView()
+        case .recorder: RecorderView()
+        case .audio: AudioView()
+        case .output: OutputView()
+        case .hotkey: HotkeyView()
+        case .blocklist: BlocklistView()
+        }
+    }
+}
+
 struct SettingsView: View {
     @State private var selectedItem: String? = "General"
-    
+    @State private var page: SettingsPage? = .general
+    @State private var query = ""
+
     var body: some View {
-        NavigationView {
-            List(selection: $selectedItem) {
-                NavigationLink(destination: GeneralView(), tag: "General", selection: $selectedItem) {
-                    Label("General", image: "gear")
+        if #available(macOS 13, *) {
+            // same structure as System Settings: searchable sidebar, page title in the toolbar
+            NavigationSplitView {
+                List(SettingsPage.allCases.filter { $0.matches(query) }, selection: $page) { item in
+                    Label { Text(LocalizedStringKey(item.rawValue)) } icon: { Image(item.icon) }
+                        .padding(.vertical, 2)
                 }
-                NavigationLink(destination: RecorderView(), tag: "Recorder", selection: $selectedItem) {
-                    Label("Recorder", image: "record")
+                .navigationSplitViewColumnWidth(190)
+                .modifier(NoSidebarToggle())
+                .searchable(text: $query, placement: .sidebar)
+                // jump to the first hit, as System Settings does
+                .onChange(of: query) { q in
+                    if let first = SettingsPage.allCases.first(where: { $0.matches(q) }), page.map({ !$0.matches(q) }) ?? true { page = first }
                 }
-                NavigationLink(destination: AudioView(), tag: "Audio", selection: $selectedItem) {
-                    Label("Audio", image: "audio")
-                }
-                NavigationLink(destination: OutputView(), tag: "Output", selection: $selectedItem) {
-                    Label("Output", image: "film")
-                }
-                NavigationLink(destination: HotkeyView(), tag: "Hotkey", selection: $selectedItem) {
-                    Label("Hotkey", image: "hotkey")
-                }
-                NavigationLink(destination: BlocklistView(), tag: "Blaoklist", selection: $selectedItem) {
-                    Label("Blocklist", image: "blacklist")
-                }
+            } detail: {
+                (page ?? .general).view
+                    .navigationTitle(LocalizedStringKey((page ?? .general).rawValue))
             }
-            .listStyle(.sidebar)
-            .padding(.top, 9)
-            .frame(width: 170) // room for the longer translations (ショートカット, Tastaturkurzbefehle…)
-        }.frame(width: 630, height: 512)
+            .frame(width: 680, height: 512)
+        } else {
+            NavigationView {
+                List(selection: $selectedItem) {
+                    ForEach(SettingsPage.allCases) { item in
+                        NavigationLink(destination: item.view, tag: item.rawValue, selection: $selectedItem) {
+                            Label(LocalizedStringKey(item.rawValue), image: item.icon)
+                        }
+                    }
+                }
+                .listStyle(.sidebar)
+                .padding(.top, 9)
+            }.frame(width: 600, height: 512)
+        }
+    }
+}
+
+private struct NoSidebarToggle: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(macOS 14, *) { content.toolbar(removing: .sidebarToggle) } else { content }
     }
 }
 
