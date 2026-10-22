@@ -123,7 +123,7 @@
 "If you are on a call, enable \"Mute\"" = "通話中に収録する場合は \"消音\" をオンにしてください";
 "Preset" = "プリセット";
 "Mute" = "消音";
-"Default" = "システムのデフォルト";
+"Default" = "デフォルト";
 "Pixel Format" = "ピクセルフォーマット";
 "Color Space" = "カラースペース";
 "Check for Updates…" = "アップデートを確認…";
@@ -150,7 +150,7 @@
 "Resize" = "範囲を編集";
 "Back" = "戻る";
 "Unknow Error" = "不明なエラー";
-"The \"Acoustic Echo Cancellation\" is enabled, but it won't work on now.\n\nIf you need to use a specific input with AEC, set it to \"Default\" and select the device you want in System Preferences.\n\nOr you can start recording without AEC." = "\"エコーキャンセリング\" がオンですが、アプリ内で選んだマイクでは機能しません。\n\n特定のマイクでエコーキャンセリングを使うには、マイクを \"システムのデフォルト\" にして、システム設定で入力デバイスを選択してください。\n\nまたは、エコーキャンセリングなしで収録を開始できます。";
+"The \"Acoustic Echo Cancellation\" is enabled, but it won't work on now.\n\nIf you need to use a specific input with AEC, set it to \"Default\" and select the device you want in System Preferences.\n\nOr you can start recording without AEC." = "\"エコーキャンセリング\" がオンですが、アプリ内で選んだマイクでは機能しません。\n\n特定のマイクでエコーキャンセリングを使うには、マイクを \"デフォルト\" にして、システム設定で入力デバイスを選択してください。\n\nまたは、エコーキャンセリングなしで収録を開始できます。";
 "System Preferences" = "システム設定";
 "Export Recording" = "録音を書き出す";
 "Play / Pause" = "再生 / 一時停止";

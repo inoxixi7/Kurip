@@ -264,9 +264,15 @@ struct SelectorView: View {
     
     var body: some View {
         VStack(spacing: 6) {
+            // fixed two-line slot: long translations wrap or shrink without pushing the icon down
             Text(title)
                 .opacity(0.95)
                 .font(.system(size: 12))
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 6)
+                .frame(height: 30)
                 .offset(y: title == "System Audio".local ? -3.5 : 0)
             ZStack {
                 if title == "System Audio".local {
