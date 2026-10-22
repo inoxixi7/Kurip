@@ -240,3 +240,4 @@
 "Resume Recording" = "収録を再開";
 "Kurip can't write to the output folder:\n%@\n\nChoose another folder in Settings > Output, or check its permissions." = "Kurip は保存先フォルダに書き込めません：\n%@\n\n「設定 > 出力」で別のフォルダを選ぶか、フォルダのアクセス権を確認してください。";
 "Kurip couldn't create the recording file in:\n%@\n\nCheck that the disk has free space and the folder is still available." = "Kurip は次の場所に収録ファイルを作成できませんでした：\n%@\n\nディスクに空き容量があり、フォルダが利用可能か確認してください。";
+"Add App…" = "App を追加…";

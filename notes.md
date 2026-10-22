@@ -1,4 +1,4 @@
-## Kurip 1.7.0
+## Kurip 0.1.0
 
 First release under the Kurip name (formerly QuickRecorder).
 

@@ -133,16 +133,13 @@ struct SInfoButton: View {
                 .opacity(0.5)
         })
         .buttonStyle(.plain)
-        .onChange(of: isPresented) {_ in}
-        .sheet(isPresented: $isPresented) {
-            VStack(alignment: .trailing) {
-                GroupBox { Text(tips).padding() }
-                Button(action: {
-                    isPresented = false
-                }, label: {
-                    Text("OK").frame(width: 30)
-                }).keyboardShortcut(.defaultAction)
-            }.padding()
+        // a native info popover, as System Settings uses, instead of a sheet with an OK button
+        .popover(isPresented: $isPresented, arrowEdge: .bottom) {
+            Text(tips)
+                .font(.callout)
+                .padding(12)
+                .frame(width: 280, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 }

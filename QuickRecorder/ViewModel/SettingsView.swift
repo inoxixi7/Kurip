@@ -401,6 +401,20 @@ struct HotkeyView: View {
 
 struct BlocklistView: View {
     var body: some View {
+        if #available(macOS 13, *) {
+            SForm {
+                SGroupBox(label: "Blocklist") { BundleSelector() }
+                Text("These apps will be excluded when recording \"Screen\" or \"Screen Area\"\nBut if the app is launched after the recording starts, it cannot be excluded.")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .modifier(BareFormRow())
+            }
+        } else {
+            legacy
+        }
+    }
+
+    private var legacy: some View {
         SForm(spacing: 0, noSpacer: true) {
             SGroupBox(label: "Blocklist") {
                     BundleSelector()
