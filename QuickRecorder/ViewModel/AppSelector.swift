@@ -14,7 +14,6 @@ struct AppSelector: View {
     @State private var selected = [SCRunningApplication]()
     @State private var display: SCDisplay!
     @State private var selectedTab = 0
-    @State private var isPopoverShowing = false
     @State private var autoStop = 0
     var appDelegate = AppDelegate.shared
     
@@ -101,60 +100,16 @@ struct AppSelector: View {
                         }
                     }
                 }
-                HStack(spacing: 4) {
-                    Button(action: {
-                        viewModel.updateAppList()
-                    }, label: {
-                        VStack{
-                            Image(systemName: "arrow.clockwise.circle.fill")
-                                .font(.system(size: 36))
-                                .foregroundStyle(.blue)
-                            Text("Refresh")
-                                .foregroundStyle(.secondary)
-                                .font(.system(size: 12))
-                        }
-                        
-                    }).buttonStyle(.plain)
-                    Spacer()
-                    OptionsView().padding(.leading, 18)
-                    Spacer()
-                    Button(action: {
-                        isPopoverShowing = true
-                    }, label: {
-                        Image(systemName: "timer")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundStyle(.blue)
-                    })
-                    .buttonStyle(.plain)
-                    .padding(.top, 42.5)
-                    .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom, content: {
-                        HStack {
-                            Text(" Stop after".local)
-                            TextField("", value: $autoStop, formatter: NumberFormatter())
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                //.onChange(of: autoStop) { newValue in SCContext.autoStop = newValue }
-                            Stepper("", value: $autoStop)
-                                .padding(.leading, -10)
-                            Text("minutes ".local)
-                        }
-                        .fixedSize()
-                        .padding()
-                    })
-                    Button(action: {
-                        startRecording()
-                    }, label: {
-                        VStack{
-                            Image(systemName: "record.circle.fill")
-                                .font(.system(size: 36))
-                                .foregroundStyle(.red)
-                            Text("Start")
-                                .foregroundStyle(.secondary)
-                                .font(.system(size: 12))
-                        }
-                    })
-                    .buttonStyle(.plain)
-                    .disabled(selected.count < 1)
-                }.padding(.horizontal, 40)
+                HStack(spacing: 10) {
+                    ToolbarButton(symbol: "arrow.clockwise", title: "Refresh".local) { viewModel.updateAppList() }
+                    Divider().frame(height: 40)
+                    OptionsView()
+                    Spacer(minLength: 0)
+                    TimerButton(autoStop: $autoStop)
+                    StartButton { startRecording() }.disabled(selected.isEmpty)
+                }
+                .padding(.horizontal, 24)
+                .frame(height: 76)
                 Spacer()
             }.padding(.top, -5)
         }.frame(width: 780, height:555)
@@ -216,35 +171,38 @@ struct OptionsView: View {
     @AppStorage("micDevice")      private var micDevice: String = "default"
     @AppStorage("enableAEC")      private var enableAEC: Bool = true
     
+    private let rowHeight: CGFloat = 24 // = ToggleChip height
+    private let rowSpacing: CGFloat = 6
+
     var body: some View {
         HStack(spacing: 14) {
             HStack(spacing: 6) {
-                VStack(alignment: .leading, spacing: 9) {
+                VStack(alignment: .leading, spacing: rowSpacing) {
                     OptionLabel("Resolution")
                     OptionLabel("Frame Rate")
                 }
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: rowSpacing) {
                     Picker("", selection: $highRes) {
                         Text("High (auto)").tag(2)
                         Text("Normal (1x)").tag(1)
-                    }
+                    }.frame(height: rowHeight)
                     Picker("", selection: $frameRate) {
                         if ![240, 144, 120, 90, 60, 30, 24, 15 ,10].contains(frameRate) {
                             Text("\(frameRate) FPS").tag(frameRate)
                         }
                         ForEach([240, 144, 120, 90, 60, 30, 24, 15, 10], id: \.self) { Text("\($0) FPS").tag($0) }
-                    }
+                    }.frame(height: rowHeight)
                 }
-                VStack(alignment: .leading, spacing: 9) {
+                VStack(alignment: .leading, spacing: rowSpacing) {
                     OptionLabel("Quality")
                     OptionLabel("Background")
                 }.padding(.leading, 8)
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: rowSpacing) {
                     Picker("", selection: $videoQuality) {
                         Text("High").tag(1.0)
                         Text("Medium").tag(0.7)
                         Text("Low").tag(0.3)
-                    }
+                    }.frame(height: rowHeight)
                     Picker("", selection: $background) {
                         Text("Wallpaper").tag(BackgroundType.wallpaper)
                         if ud.bool(forKey: "withAlpha") { Text("Transparent").tag(BackgroundType.clear) }
@@ -257,14 +215,14 @@ struct OptionsView: View {
                         Text("Blue").tag(BackgroundType.blue)
                         Text("Red").tag(BackgroundType.red)
                         Text("Custom").tag(BackgroundType.custom)
-                    }
+                    }.frame(height: rowHeight)
                 }
             }
             .labelsHidden()
             .buttonStyle(.borderless)
             .fixedSize()
             Divider().frame(height: 44)
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: rowSpacing) {
                 HStack(spacing: 6) {
                     if #available(macOS 15, *) {
                         ToggleChip(title: "HDR", symbol: "sparkles", isOn: $recordHDR).help("Record HDR".local)
@@ -286,21 +244,23 @@ struct OptionsView: View {
     }
 
     // split button: the left half toggles the mic, the chevron picks the device
+    private func micOption(_ title: String, tag: String) -> some View {
+        Toggle(title, isOn: Binding(get: { micDevice == tag }, set: { _ in micDevice = tag }))
+    }
+
     private var micChip: some View {
         HStack(spacing: 4) {
             ToggleChip(title: "Mic", symbol: "mic.fill", isOn: $recordMic)
                 .disabled(micList.isEmpty)
                 .onChange(of: recordMic) { _ in Task { await SCContext.performMicCheck() }}
             Menu {
-                Picker("", selection: $micDevice) {
-                    Text("Default".local).tag("default")
-                    ForEach(micList, id: \.self) { device in
-                        Text(device.localizedName).tag(device.localizedName)
-                    }
-                }.pickerStyle(.inline)
+                micOption("Default".local, tag: "default")
+                Divider()
+                ForEach(micList, id: \.self) { micOption($0.localizedName, tag: $0.localizedName) }
             } label: {
                 Image(systemName: "chevron.down")
-                    .frame(width: 20, height: 22)
+                    .font(.system(size: 10, weight: .semibold))
+                    .frame(width: 20, height: rowHeight)
                     .contentShape(Rectangle())
             }
             .menuStyle(.borderlessButton)
@@ -331,6 +291,6 @@ private struct OptionLabel: View {
     let key: LocalizedStringKey
     init(_ key: LocalizedStringKey) { self.key = key }
     var body: some View {
-        Text(key).font(.system(size: 12)).foregroundStyle(.secondary)
+        Text(key).font(.system(size: 12)).foregroundStyle(.secondary).frame(height: 24)
     }
 }

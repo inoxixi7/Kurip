@@ -23,7 +23,6 @@ struct HighlightMask: View {
     @State var display: SCDisplay?
     @State var color: Color = .blue
     @State var showSheet: Bool = false
-    @State private var isPopoverShowing = false
     @State private var disableFilter = false
     @State private var donotCapture = false
     @State private var autoStop = 0
@@ -34,59 +33,18 @@ struct HighlightMask: View {
             .cornerRadius(10)
             .help("\(app) - \(title)")
             .sheet(isPresented: $showSheet) {
-                HStack(spacing: 4) {
-                    Button(action: {
-                        showSheet = false
-                    }, label: {
-                        VStack{
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 36))
-                                .foregroundStyle(.gray)
-                            Text("Cancel")
-                                .foregroundStyle(.secondary)
-                                .font(.system(size: 12))
-                        }
-                    }).buttonStyle(.plain)
-                    Spacer()
+                HStack(spacing: 10) {
+                    ToolbarButton(symbol: "xmark", title: "Cancel".local) { showSheet = false }
+                        .keyboardShortcut(.cancelAction)
+                    Divider().frame(height: 40)
                     OptionsView()
-                    Spacer()
-                    Button(action: {
-                        isPopoverShowing = true
-                    }, label: {
-                        Image(systemName: "timer")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundStyle(.blue)
-                    })
-                    .buttonStyle(.plain)
-                    .padding(.top, 42.5)
-                    .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom, content: {
-                        HStack {
-                            Text(" Stop after".local)
-                            TextField("", value: $autoStop, formatter: NumberFormatter())
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                            Stepper("", value: $autoStop)
-                                .padding(.leading, -10)
-                            Text("minutes ".local)
-                        }
-                        .fixedSize()
-                        .padding()
-                    })
-                    Button(action: {
-                        startRecording()
-                    }, label: {
-                        VStack{
-                            Image(systemName: "record.circle.fill")
-                                .font(.system(size: 36))
-                                .foregroundStyle(.red)
-                            Text("Start")
-                                .foregroundStyle(.secondary)
-                                .font(.system(size: 12))
-                        }
-                    }).buttonStyle(.plain)
+                    Spacer(minLength: 0)
+                    TimerButton(autoStop: $autoStop)
+                    StartButton { startRecording() }
                 }
                 .focusable(false)
-                .frame(width: 640, height: 90)
-                .padding(.horizontal, 40)
+                .frame(width: 700, height: 76)
+                .padding(.horizontal, 20)
                 .onDisappear {
                     if let mask = WindowHighlighter.shared.mask {
                         mask.close()

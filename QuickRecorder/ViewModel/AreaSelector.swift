@@ -75,7 +75,8 @@ struct resizeView: View {
     }
 }
 
-private struct ToolbarButton: View {
+// Icon-over-label button used in every recording bar
+struct ToolbarButton: View {
     let symbol: String
     let title: String
     let action: () -> Void
@@ -98,7 +99,6 @@ private struct ToolbarButton: View {
 }
 
 struct AreaSelector: View {
-    @State private var isPopoverShowing = false
     @State private var resizePopoverShowing = false
     @State private var autoStop = 0
     @State private var nsWindow: NSWindow?
@@ -150,42 +150,8 @@ struct AreaSelector: View {
             Divider().frame(height: 40)
             OptionsView()
             Spacer(minLength: 0)
-            Button(action: { isPopoverShowing = true }, label: {
-                HStack(spacing: 3) {
-                    Image(systemName: "timer")
-                    if autoStop > 0 { Text("\(autoStop)′").monospacedDigit() }
-                }
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(autoStop > 0 ? Color.accentColor : .secondary)
-                .frame(minWidth: 30, minHeight: 30)
-                .background(Capsule().fill(.primary.opacity(0.06)))
-            })
-            .buttonStyle(.plain)
-            .help(" Stop after".local + "…")
-            .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom, content: {
-                HStack {
-                    Text(" Stop after".local)
-                    TextField("", value: $autoStop, formatter: NumberFormatter())
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                    Stepper("", value: $autoStop)
-                        .padding(.leading, -10)
-                    Text("minutes ".local)
-                }
-                .fixedSize()
-                .padding()
-            })
-            Button(action: { startRecording() }, label: {
-                HStack(spacing: 7) {
-                    Circle().fill(.white).frame(width: 10, height: 10)
-                    Text("Start").font(.system(size: 13, weight: .semibold)).fixedSize()
-                }
-                .foregroundStyle(.white)
-                .padding(.horizontal, 16)
-                .frame(height: 34)
-                .background(Capsule().fill(Color.red))
-                .shadow(color: .red.opacity(0.35), radius: 6, y: 2)
-            })
-            .buttonStyle(.plain)
+            TimerButton(autoStop: $autoStop)
+            StartButton { startRecording() }
         }
         .padding(.horizontal, 14)
         .frame(width: 860, height: 88)
@@ -535,5 +501,60 @@ enum ResizeHandle: CaseIterable {
     
     static var allCases: [ResizeHandle] {
         return [.none, .topLeft, .top, .topRight, .right, .bottomRight, .bottom, .bottomLeft, .left]
+    }
+}
+
+// Auto-stop timer capsule; shows the minutes once set
+struct TimerButton: View {
+    @Binding var autoStop: Int
+    @State private var isPopoverShowing = false
+
+    var body: some View {
+        Button(action: { isPopoverShowing = true }, label: {
+            HStack(spacing: 3) {
+                Image(systemName: "timer")
+                if autoStop > 0 { Text("\(autoStop)′").monospacedDigit() }
+            }
+            .font(.system(size: 12, weight: .semibold))
+            .foregroundStyle(autoStop > 0 ? Color.accentColor : .secondary)
+            .padding(.horizontal, autoStop > 0 ? 8 : 0)
+            .frame(minWidth: 30, minHeight: 30)
+            .background(Capsule().fill(.primary.opacity(0.06)))
+        })
+        .buttonStyle(.plain)
+        .help(" Stop after".local + "…")
+        .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom, content: {
+            HStack {
+                Text(" Stop after".local)
+                TextField("", value: $autoStop, formatter: NumberFormatter())
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                Stepper("", value: $autoStop)
+                    .padding(.leading, -10)
+                Text("minutes ".local)
+            }
+            .fixedSize()
+            .padding()
+        })
+    }
+}
+
+struct StartButton: View {
+    let action: () -> Void
+    @Environment(\.isEnabled) private var isEnabled
+
+    var body: some View {
+        Button(action: action, label: {
+            HStack(spacing: 7) {
+                Circle().fill(.white).frame(width: 10, height: 10)
+                Text("Start").font(.system(size: 13, weight: .semibold)).fixedSize()
+            }
+            .foregroundStyle(.white)
+            .padding(.horizontal, 16)
+            .frame(height: 34)
+            .background(Capsule().fill(Color.red.opacity(isEnabled ? 1 : 0.35)))
+            .shadow(color: .red.opacity(isEnabled ? 0.35 : 0), radius: 6, y: 2)
+        })
+        .buttonStyle(.plain)
+        .keyboardShortcut(.defaultAction)
     }
 }

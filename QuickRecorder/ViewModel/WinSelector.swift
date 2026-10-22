@@ -16,8 +16,6 @@ struct WinSelector: View {
     @State private var selected = [SCWindow]()
     @State private var display: SCDisplay!
     @State private var selectedTab = 0
-    @State private var isPopoverShowing = false
-    @State private var isPopoverShowing2 = false
     @State private var disableFilter = false
     @State private var donotCapture = false
     @State private var autoStop = 0
@@ -147,87 +145,32 @@ struct WinSelector: View {
                         }
                     }
                 }
-                HStack(spacing: 4) {
-                    Button(action: {
-                        self.viewModel.setupStreams(filter: !disableFilter, capture: !donotCapture)
-                        self.selected.removeAll()
-                    }, label: {
-                        VStack{
-                            Image(systemName: "arrow.clockwise.circle.fill")
-                                .font(.system(size: 36))
-                                .foregroundStyle(.blue)
-                            Text("Refresh")
-                                .foregroundStyle(.secondary)
-                                .font(.system(size: 12))
-                        }
-                        
-                    }).buttonStyle(.plain)
-                    Button(action: {
-                        isPopoverShowing2 = true
-                    }, label: {
-                        Image(systemName: "chevron.down")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundStyle(.blue)
-                    })
-                    .buttonStyle(.plain)
-                    .padding(.top, 42.5)
-                    .popover(isPresented: $isPopoverShowing2, arrowEdge: .bottom, content: {
-                        VStack(alignment: .leading) {
-                            Toggle(isOn: $disableFilter) { Text("Show Windows with No Title") }
-                                .toggleStyle(.checkbox)
-                                .onChange(of: disableFilter) { _ in
-                                    self.viewModel.setupStreams(filter: !disableFilter, capture: !donotCapture)
-                                    self.selected.removeAll()
-                                }
-                            Toggle(isOn: $donotCapture) { Text("Don't Create Thumbnails") }
-                                .toggleStyle(.checkbox)
-                                .onChange(of: donotCapture) { _ in
-                                    self.viewModel.setupStreams(filter: !disableFilter, capture: !donotCapture)
-                                    self.selected.removeAll()
-                                }
-                        }
-                        .fixedSize()
-                        .padding()
-                    })
-                    Spacer()
+                HStack(spacing: 10) {
+                    ToolbarButton(symbol: "arrow.clockwise", title: "Refresh".local) { refresh() }
+                    Menu {
+                        Toggle("Show Windows with No Title".local, isOn: $disableFilter)
+                        Toggle("Don't Create Thumbnails".local, isOn: $donotCapture)
+                    } label: {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(.secondary)
+                            .frame(width: 26, height: 50)
+                            .contentShape(Rectangle())
+                    }
+                    .menuStyle(.borderlessButton)
+                    .menuIndicator(.hidden)
+                    .fixedSize()
+                    .help("Filter".local)
+                    .onChange(of: disableFilter) { _ in refresh() }
+                    .onChange(of: donotCapture) { _ in refresh() }
+                    Divider().frame(height: 40)
                     OptionsView()
-                    Spacer()
-                    Button(action: {
-                        isPopoverShowing = true
-                    }, label: {
-                        Image(systemName: "timer")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundStyle(.blue)
-                    })
-                    .buttonStyle(.plain)
-                    .padding(.top, 42.5)
-                    .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom, content: {
-                        HStack {
-                            Text(" Stop after".local)
-                            TextField("", value: $autoStop, formatter: NumberFormatter())
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                            Stepper("", value: $autoStop)
-                                .padding(.leading, -10)
-                            Text("minutes ".local)
-                        }
-                        .fixedSize()
-                        .padding()
-                    })
-                    Button(action: {
-                        startRecording()
-                    }, label: {
-                        VStack{
-                            Image(systemName: "record.circle.fill")
-                                .font(.system(size: 36))
-                                .foregroundStyle(.red)
-                            Text("Start")
-                                .foregroundStyle(.secondary)
-                                .font(.system(size: 12))
-                        }
-                    })
-                    .buttonStyle(.plain)
-                    .disabled(selected.count < 1)
-                }.padding(.horizontal, 40)
+                    Spacer(minLength: 0)
+                    TimerButton(autoStop: $autoStop)
+                    StartButton { startRecording() }.disabled(selected.isEmpty)
+                }
+                .padding(.horizontal, 24)
+                .frame(height: 76)
                 Spacer()
             }.padding(.top, -5)
         }
@@ -245,6 +188,11 @@ struct WinSelector: View {
         }
     }
     
+    private func refresh() {
+        viewModel.setupStreams(filter: !disableFilter, capture: !donotCapture)
+        selected.removeAll()
+    }
+
     func startRecording() {
         closeAllWindow()
         appDelegate.createCountdownPanel(screen: display) {

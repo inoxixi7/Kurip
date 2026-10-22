@@ -13,7 +13,6 @@ struct ScreenSelector: View {
     @StateObject var viewModel = ScreenSelectorViewModel()
     
     @State private var selected: SCDisplay?
-    @State private var isPopoverShowing = false
     @State private var autoStop = 0
     var appDelegate = AppDelegate.shared
     
@@ -91,59 +90,16 @@ struct ScreenSelector: View {
                 }
                 .frame(height: 445)
                 
-                HStack(spacing: 4) {
-                    Button(action: {
-                        viewModel.setupStreams()
-                    }, label: {
-                        VStack{
-                            Image(systemName: "arrow.clockwise.circle.fill")
-                                .font(.system(size: 36))
-                                .foregroundStyle(.blue)
-                            Text("Refresh")
-                                .foregroundStyle(.secondary)
-                                .font(.system(size: 12))
-                        }
-                        
-                    }).buttonStyle(.plain)
-                    Spacer()
-                    OptionsView().padding(.leading, 18)
-                    Spacer()
-                    Button(action: {
-                        isPopoverShowing = true
-                    }, label: {
-                        Image(systemName: "timer")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundStyle(.blue)
-                    })
-                    .buttonStyle(.plain)
-                    .padding(.top, 42.5)
-                    .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom, content: {
-                        HStack {
-                            Text(" Stop after".local)
-                            TextField("", value: $autoStop, formatter: NumberFormatter())
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                            Stepper("", value: $autoStop)
-                                .padding(.leading, -10)
-                            Text("minutes ".local)
-                        }
-                        .fixedSize()
-                        .padding()
-                    })
-                    Button(action: {
-                        startRecording()
-                    }, label: {
-                        VStack{
-                            Image(systemName: "record.circle.fill")
-                                .font(.system(size: 36))
-                                .foregroundStyle(.red)
-                            Text("Start")
-                                .foregroundStyle(.secondary)
-                                .font(.system(size: 12))
-                        }
-                    })
-                    .buttonStyle(.plain)
-                    .disabled(selected == nil)
-                }.padding(.horizontal, 40)
+                HStack(spacing: 10) {
+                    ToolbarButton(symbol: "arrow.clockwise", title: "Refresh".local) { viewModel.setupStreams() }
+                    Divider().frame(height: 40)
+                    OptionsView()
+                    Spacer(minLength: 0)
+                    TimerButton(autoStop: $autoStop)
+                    StartButton { startRecording() }.disabled(selected == nil)
+                }
+                .padding(.horizontal, 24)
+                .frame(height: 76)
                 Spacer()
             }
             .padding(.top, -5)
