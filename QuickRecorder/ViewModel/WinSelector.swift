@@ -180,10 +180,14 @@ struct WinSelector: View {
                 HoverButton(action: {
                     WindowHighlighter.shared.registerMouseMonitor()
                 }, label: {
-                    Image("window.select")
-                        .resizable().scaledToFit()
-                        .frame(width: 20)
-                }).help("Select Window Directly")
+                    HStack(spacing: 6) {
+                        Image("window.select")
+                            .resizable().scaledToFit()
+                            .frame(width: 18)
+                        Text("Select Window Directly").font(.system(size: 12, weight: .medium)).fixedSize()
+                    }
+                    .padding(.horizontal, 6)
+                })
             }
         }
     }
