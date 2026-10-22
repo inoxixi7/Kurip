@@ -233,3 +233,12 @@
 "Source" = "来源";
 "File" = "文件";
 "Input Device" = "输入设备";
+"Full Screen" = "全屏";
+"Area" = "区域";
+"Windows" = "窗口";
+"Apps" = "应用";
+"Audio Only" = "仅声音";
+"Device" = "移动设备";
+"App Audio" = "App 声音";
+"Mic" = "麦克风";
+"Share..." = "共享...";

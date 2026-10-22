@@ -231,3 +231,12 @@
 "Source" = "來源";
 "File" = "檔案";
 "Input Device" = "輸入裝置";
+"Full Screen" = "全螢幕";
+"Area" = "區域";
+"Windows" = "視窗";
+"Apps" = "應用程式";
+"Audio Only" = "僅聲音";
+"Device" = "行動裝置";
+"App Audio" = "App 聲音";
+"Mic" = "麥克風";
+"Share..." = "分享...";
