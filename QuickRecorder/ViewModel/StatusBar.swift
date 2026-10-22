@@ -266,6 +266,9 @@ final class StatusBarController: NSObject {
             }
             cam.state = SCContext.isCameraRunning() ? .on : .off
             menu.addItem(cam)
+            let magnifier = item("Toggle Screen Magnifier", symbol: "plus.magnifyingglass") { SCContext.isMagnifierEnabled.toggle() }
+            magnifier.state = SCContext.isMagnifierEnabled ? .on : .off
+            menu.addItem(magnifier)
         }
         statusBarItem.menu = menu
         button.performClick(nil)

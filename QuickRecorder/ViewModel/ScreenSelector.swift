@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import ScreenCaptureKit
+@preconcurrency import ScreenCaptureKit
 
 struct ScreenSelector: View {
     @Environment(\.colorScheme) var colorScheme

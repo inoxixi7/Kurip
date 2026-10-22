@@ -166,9 +166,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         let mouseLocation = event.locationInWindow
         var windowFrame = screenMagnifier.frame
         windowFrame.origin = NSPoint(x: mouseLocation.x - windowFrame.width / 2, y: mouseLocation.y - windowFrame.height / 2)
-        guard let image = NSImage.createScreenShot() else { return }
-        let rect = NSRect(x: mouseLocation.x - 67, y: mouseLocation.y - 58, width: 134, height: 116)
-        let croppedImage = image.trim(rect: rect)
+        // CG screen coordinates are top-left based, measured from the primary screen
+        let primaryHeight = NSScreen.screens.first?.frame.height ?? 0
+        let rect = CGRect(x: mouseLocation.x - 67, y: primaryHeight - mouseLocation.y - 58, width: 134, height: 116)
+        guard let croppedImage = NSImage.createScreenShot(rect: rect) else { return }
         screenMagnifier.contentView = NSHostingView(rootView: ScreenMagnifier(screenShot: croppedImage, event: event))
         screenMagnifier.setFrameOrigin(windowFrame.origin)
         screenMagnifier.orderFront(nil)
@@ -557,7 +558,7 @@ extension NSMenuItem {
 }
 
 extension NSImage {
-    static func createScreenShot() -> NSImage? {
+    static func createScreenShot(rect: CGRect = .infinite) -> NSImage? {
         let excludedAppBundleIDs = [Bundle.main.bundleIdentifier]
         var exclusionPIDs = [Int]()
         for app in NSWorkspace.shared.runningApplications {
@@ -576,10 +577,11 @@ extension NSImage {
             }
         }
         let pointer = UnsafeMutablePointer<UnsafeRawPointer?>.allocate(capacity: windowIDs.count)
+        defer { pointer.deallocate() }
         for (index, window) in windowIDs.enumerated() { pointer[index] = UnsafeRawPointer(bitPattern: UInt(window)) }
         let cWindowIDArray: CFArray = CFArrayCreate(kCFAllocatorDefault, pointer, windowIDs.count, nil)
 
-        guard let imageRef = CGImage(windowListFromArrayScreenBounds: CGRect.infinite, windowArray: cWindowIDArray, imageOption: []) else {
+        guard let imageRef = CGImage(windowListFromArrayScreenBounds: rect, windowArray: cWindowIDArray, imageOption: []) else {
             print("No image available")
             return nil
         }
@@ -597,17 +599,6 @@ extension NSImage {
                 print("Error saving image: \(error.localizedDescription)")
             }
         }
-    }
-    
-    func trim(rect: CGRect) -> NSImage {
-        let result = NSImage(size: rect.size)
-        result.lockFocus()
-
-        let destRect = CGRect(origin: .zero, size: result.size)
-        self.draw(in: destRect, from: rect, operation: .copy, fraction: 1.0)
-
-        result.unlockFocus()
-        return result
     }
 }
 

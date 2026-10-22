@@ -9,6 +9,14 @@ import Foundation
 import AppKit
 import ScreenCaptureKit
 
+extension SCRunningApplication {
+    // Scripts say "Finder" while SCK reports the localized name ("访达"), so also accept the bundle ID or .app name
+    func matches(_ name: String) -> Bool {
+        let bundleName = NSRunningApplication(processIdentifier: processID)?.bundleURL?.deletingPathExtension().lastPathComponent
+        return [applicationName, bundleIdentifier, bundleName].contains { $0?.caseInsensitiveCompare(name) == .orderedSame }
+    }
+}
+
 class selectScreen: NSScriptCommand {
     override func performDefaultImplementation() -> Any? {
         if SCContext.stream != nil {
@@ -78,7 +86,7 @@ class selectApps: NSScriptCommand {
             DispatchQueue.main.async {
                 closeAllWindow()
                 if let name = self.evaluatedArguments!["name"] as? String {
-                    guard let app = SCContext.availableContent?.applications.first(where: { $0.applicationName == name }) else {
+                    guard let app = SCContext.availableContent?.applications.first(where: { $0.matches(name) }) else {
                         createAlert(title: "Error".local, message: "No such application!".local, button1: "OK".local).runModal()
                         return
                     }
@@ -133,7 +141,7 @@ class selectWindows: NSScriptCommand {
                     guard let w = SCContext.availableContent?.windows.filter({ $0.title == title }) else { return }
                     windows = w
                     if let app = self.evaluatedArguments!["app"] as? String {
-                        guard let w = SCContext.availableContent?.windows.filter({ $0.title == title && $0.owningApplication?.applicationName == app }) else { return }
+                        guard let w = SCContext.availableContent?.windows.filter({ $0.title == title && $0.owningApplication?.matches(app) == true }) else { return }
                         windows = w
                     }
                     closeAllWindow()

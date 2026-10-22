@@ -8,7 +8,7 @@
 import SwiftUI
 import Foundation
 import AVFoundation
-import ScreenCaptureKit
+@preconcurrency import ScreenCaptureKit
 
 struct WinSelector: View {
     @Environment(\.colorScheme) var colorScheme

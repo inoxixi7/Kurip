@@ -105,7 +105,7 @@
 "Launch at Login" = "登入時啟動";
 "Shortcuts Settings" = "快速鍵設定";
 "Pause / Resume" = "暫停/繼續錄製";
-"Stop Recording" = "結束螢幕錄製";
+"Stop Recording" = "結束錄製";
 "Record System Audio" = "立即錄製系統聲音";
 "Record Current Screen" = "立即錄製當前螢幕";
 "Record Topmost Window" = "立即錄製當前視窗";

@@ -221,7 +221,9 @@ extension AppDelegate {
         
 
         //  conf.minimumFrameInterval = CMTime(value: 1, timescale: audioOnly ? CMTimeScale.max : CMTimeScale(frameRate))
-         conf.minimumFrameInterval = CMTime(value: 1, timescale: audioOnly ? CMTimeScale.max : (frameRate >= 60 ? 0 : CMTimeScale(frameRate)))
+        // Throttling at the display's own refresh rate drops frames, so only throttle below it (else 60 FPS records 120 on ProMotion)
+        let maxFps = SCContext.getScreenWithMouse()?.maximumFramesPerSecond ?? 60
+        conf.minimumFrameInterval = CMTime(value: 1, timescale: audioOnly ? CMTimeScale.max : (frameRate >= maxFps ? 0 : CMTimeScale(frameRate)))
 
 //        CMTimeScale is the denominator in the fraction
 //        conf.minimumFrameInterval = CMTime(seconds: audioOnly ? Double(CMTimeScale.max) : Double(1)/Double(frameRate), preferredTimescale: 10000)
@@ -459,7 +461,10 @@ extension AppDelegate {
                         SCContext.micInput.append(buffer.asSampleBuffer!)
                     }
                 }
-                try! SCContext.audioEngine.start()
+                do { try SCContext.audioEngine.start() } catch {
+                    // keep recording the screen instead of crashing when the mic can't start
+                    DispatchQueue.main.async { _ = createAlert(title: "Failed to Record".local, message: error.localizedDescription, button1: "OK".local).runModal() }
+                }
             }
         } else {
             AudioRecorder.shared.setupAudioCapture()
