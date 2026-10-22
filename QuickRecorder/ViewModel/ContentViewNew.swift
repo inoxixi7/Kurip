@@ -61,8 +61,8 @@ struct ContentViewNew: View {
                 }
                 Divider()
                 HStack(spacing: 6) {
-                    AudioToggle(title: "App Audio", symbol: "speaker.wave.2.fill", isOn: $recordWinSound)
-                    AudioToggle(title: "Mic", symbol: "mic.fill", isOn: $recordMic)
+                    ToggleChip(title: "App Audio", symbol: "speaker.wave.2.fill", isOn: $recordWinSound)
+                    ToggleChip(title: "Mic", symbol: "mic.fill", isOn: $recordMic)
                         .onChange(of: recordMic) { _ in Task { await SCContext.performMicCheck() }}
                     Picker("", selection: $micDevice) {
                         Text("Default".local).tag("default")
@@ -157,7 +157,8 @@ private struct ModeTile: View {
     }
 }
 
-private struct AudioToggle: View {
+// Pill toggle shared by the main panel and the recording options bar
+struct ToggleChip: View {
     let title: String
     let symbol: String
     @Binding var isOn: Bool
@@ -197,7 +198,7 @@ private struct FooterButton: View {
     }
 }
 
-private struct PressStyle: ButtonStyle {
+struct PressStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.96 : 1)

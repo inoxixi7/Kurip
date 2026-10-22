@@ -177,7 +177,7 @@ struct AreaSelector: View {
             Button(action: { startRecording() }, label: {
                 HStack(spacing: 7) {
                     Circle().fill(.white).frame(width: 10, height: 10)
-                    Text("Start").font(.system(size: 13, weight: .semibold))
+                    Text("Start").font(.system(size: 13, weight: .semibold)).fixedSize()
                 }
                 .foregroundStyle(.white)
                 .padding(.horizontal, 16)
