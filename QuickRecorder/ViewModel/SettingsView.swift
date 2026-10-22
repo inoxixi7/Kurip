@@ -290,7 +290,7 @@ struct AudioView: View {
                 }
             }
             SGroupBox(label: "File") {
-                SPicker("Quality", selection: $audioQuality) {
+                SPicker("Audio Quality", selection: $audioQuality) {
                     if audioFormat == .alac || audioFormat == .flac {
                         Text("Lossless").tag(audioQuality)
                     }

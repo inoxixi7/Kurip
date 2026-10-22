@@ -241,3 +241,4 @@
 "Kurip can't write to the output folder:\n%@\n\nChoose another folder in Settings > Output, or check its permissions." = "Kurip kann nicht in den Ausgabeordner schreiben:\n%@\n\nWähle unter Einstellungen > Ausgabe einen anderen Ordner oder prüfe seine Zugriffsrechte.";
 "Kurip couldn't create the recording file in:\n%@\n\nCheck that the disk has free space and the folder is still available." = "Kurip konnte die Aufnahmedatei nicht erstellen in:\n%@\n\nPrüfe, ob genug Speicherplatz frei und der Ordner noch verfügbar ist.";
 "Add App…" = "App hinzufügen …";
+"Audio Quality" = "Audioqualität";
