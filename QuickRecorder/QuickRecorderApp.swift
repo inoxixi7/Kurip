@@ -420,6 +420,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     
     class EscPanel: NSPanel {
         override func cancelOperation(_ sender: Any?) {
+            // the panel is non-activating, so Esc lands here even while a tile's popover is open: close that first
+            if let popover = childWindows?.first(where: { $0.isVisible && $0.className.contains("Popover") }) {
+                popover.close()
+                return
+            }
             self.close()
         }
         override var canBecomeKey: Bool {

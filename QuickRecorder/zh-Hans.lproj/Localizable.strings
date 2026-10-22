@@ -62,7 +62,7 @@
 "Custom" = "用户预设";
 "Area Size:" = "选区尺寸:";
 "Output Size:" = "输出尺寸:";
-"Audio" = "音频设置";
+"Audio" = "音频";
 "Video" = "视频设置";
 "Save" = "保存位置";
 "Exclude Kurip itself" = "排除Kurip窗口";
@@ -177,9 +177,9 @@
 "No such window!" = "未找到此窗口!";
 "Duplicate window exists, please select it manually!" = "存在多个同名窗口, 请手动选择!";
 "Unable to find the screen this window belongs to!" = "无法确认此窗口所属的屏幕!";
-"General" = "一般设置";
-"Recorder" = "录制设置";
-"Output" = "输出设置";
+"General" = "通用";
+"Recorder" = "录制";
+"Output" = "输出";
 "Hotkey" = "快捷键";
 "Blocklist" = "屏蔽列表";
 "Select..." = "选择...";
