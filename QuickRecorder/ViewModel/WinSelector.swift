@@ -147,8 +147,13 @@ struct WinSelector: View {
                 }
                 HStack(spacing: 10) {
                     ToolbarButton(symbol: "arrow.clockwise", title: "Refresh".local) { refresh() }
+                    // spare width is shared around the dividers, not dumped before the buttons
+                    Spacer(minLength: 0)
                     Divider().frame(height: 40)
+                    Spacer(minLength: 0)
                     OptionsView()
+                    Spacer(minLength: 0)
+                    Divider().frame(height: 40)
                     Spacer(minLength: 0)
                     TimerButton(autoStop: $autoStop)
                     StartButton { startRecording() }.disabled(selected.isEmpty)
