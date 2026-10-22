@@ -17,13 +17,16 @@ struct ContentViewNew: View {
     @AppStorage("recordWinSound") private var recordWinSound: Bool = true
     @AppStorage("micDevice") private var micDevice: String = "default"
 
+    var horizontal = false
     var appDelegate = AppDelegate.shared
     private let columns = Array(repeating: GridItem(.fixed(104), spacing: 6), count: 3)
 
     var body: some View {
         ZStack {
             ZStack {
-                if isTodayChristmas() && isAllowChristmas() {
+                // sized for the square panel; it would stretch the bar
+                if horizontal {
+                } else if isTodayChristmas() && isAllowChristmas() {
                     let images = ["snowflake1", "snowflake2", "snowflake3", "christmasTree1", "christmasTree2"]
                     SurpriseView(snowflakes: images, width: 340, height: 260, velocity: 16, lifetime: 30, alphaSpeed: -0.05)
                 } else if isChineseNewYear() && isAllowChineseNewYear() {
@@ -31,73 +34,117 @@ struct ContentViewNew: View {
                     SurpriseView(snowflakes: images, width: 340, height: 260, velocity: 16, lifetime: 30, alphaSpeed: -0.05)
                 }
             }.opacity(0.5)
-            VStack(spacing: 10) {
-                LazyVGrid(columns: columns, spacing: 6) {
-                    ModeTile(title: "Full Screen", symbol: "display") {
-                        closeMainWindow()
-                        appDelegate.createNewWindow(view: ScreenSelector(), title: "Screen Selector".local)
+            if horizontal {
+                // floating bar: same tiles and controls, laid out in one row
+                HStack(spacing: 12) {
+                    HStack(spacing: 6) { Group { tiles }.frame(width: 92) }
+                    Divider().frame(height: 64)
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 6) { appAudioChip; micChip }
+                        HStack(spacing: 4) { devicePicker.frame(width: 170); aecWarning }
                     }
-                    ModeTile(title: "Area", symbol: "rectangle.dashed") { recordArea() }
-                    ModeTile(title: "Windows", symbol: "macwindow") {
-                        closeMainWindow()
-                        appDelegate.createNewWindow(view: WinSelector(), title: "Window Selector".local)
+                    Divider().frame(height: 64)
+                    VStack(spacing: 4) {
+                        FooterButton(symbol: "xmark", help: "Close") { closeMainWindow() }
+                        settingsButton
+                        quitButton
                     }
-                    ModeTile(title: "Apps", symbol: "square.on.square") {
-                        closeMainWindow()
-                        appDelegate.createNewWindow(view: AppSelector(), title: "App Selector".local)
+                }.padding(10)
+            } else {
+                VStack(spacing: 10) {
+                    LazyVGrid(columns: columns, spacing: 6) { tiles }
+                    Divider()
+                    HStack(spacing: 6) {
+                        appAudioChip
+                        micChip
+                        devicePicker.frame(maxWidth: .infinity)
+                        aecWarning
                     }
-                    ModeTile(title: "Audio Only", symbol: "waveform") {
-                        if let display = SCContext.getSCDisplayWithMouse() {
-                            closeMainWindow()
-                            appDelegate.createCountdownPanel(screen: display) {
-                                AppDelegate.shared.prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil)
-                            }
-                        }
-                    }
-                    ModeTile(title: "Device", symbol: "iphone") { isPopoverShowing = true }
-                        .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) {
-                            iDevicePopoverView(closePopover: { isPopoverShowing = false })
-                        }
-                }
-                Divider()
-                HStack(spacing: 6) {
-                    ToggleChip(title: "App Audio", symbol: "speaker.wave.2.fill", isOn: $recordWinSound)
-                    ToggleChip(title: "Mic", symbol: "mic.fill", isOn: $recordMic)
-                        .onChange(of: recordMic) { _ in Task { await SCContext.performMicCheck() }}
-                    Picker("", selection: $micDevice) {
-                        Text("Default".local).tag("default")
-                        ForEach(micList, id: \.self) { device in
-                            Text(device.localizedName).tag(device.localizedName)
-                        }
-                    }
-                    .labelsHidden()
-                    .frame(maxWidth: .infinity)
-                    .disabled(!recordMic)
-                    .onAppear {
-                        if !micList.map({ $0.localizedName }).contains(micDevice) { micDevice = "default" }
-                    }
-                    if micDevice != "default" && enableAEC && recordMic {
-                        Button { showAECWarning() } label: {
-                            Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
-                        }
-                        .buttonStyle(.plain)
-                        .help("Compatibility Warning".local)
+                    HStack {
+                        Text("Kurip").font(.system(size: 11, weight: .semibold)).foregroundStyle(.tertiary)
+                        Spacer()
+                        settingsButton
+                        quitButton
                     }
                 }
-                HStack {
-                    Text("Kurip").font(.system(size: 11, weight: .semibold)).foregroundStyle(.tertiary)
-                    Spacer()
-                    FooterButton(symbol: "gearshape", help: "Preferences") {
-                        closeMainWindow()
-                        appDelegate.openSettingPanel()
-                    }
-                    FooterButton(symbol: "power", help: "Quit") { NSApp.terminate(nil) }
-                }
-            }.padding(12)
+                .padding(12)
+                .frame(width: 348)
+            }
         }
-        .frame(width: 348)
         // the popover's clear glass lets busy windows behind it fight the labels; keep contrast steady
         .background(.regularMaterial)
+    }
+
+    @ViewBuilder private var tiles: some View {
+        ModeTile(title: "Full Screen", symbol: "display") {
+            closeMainWindow()
+            appDelegate.createNewWindow(view: ScreenSelector(), title: "Screen Selector".local)
+        }
+        ModeTile(title: "Area", symbol: "rectangle.dashed") { recordArea() }
+        ModeTile(title: "Windows", symbol: "macwindow") {
+            closeMainWindow()
+            appDelegate.createNewWindow(view: WinSelector(), title: "Window Selector".local)
+        }
+        ModeTile(title: "Apps", symbol: "square.on.square") {
+            closeMainWindow()
+            appDelegate.createNewWindow(view: AppSelector(), title: "App Selector".local)
+        }
+        ModeTile(title: "Audio Only", symbol: "waveform") {
+            if let display = SCContext.getSCDisplayWithMouse() {
+                closeMainWindow()
+                appDelegate.createCountdownPanel(screen: display) {
+                    AppDelegate.shared.prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil)
+                }
+            }
+        }
+        ModeTile(title: "Device", symbol: "iphone") { isPopoverShowing = true }
+            .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) {
+                iDevicePopoverView(closePopover: { isPopoverShowing = false })
+            }
+    }
+
+    private var appAudioChip: some View {
+        ToggleChip(title: "App Audio", symbol: "speaker.wave.2.fill", isOn: $recordWinSound)
+    }
+
+    private var micChip: some View {
+        ToggleChip(title: "Mic", symbol: "mic.fill", isOn: $recordMic)
+            .onChange(of: recordMic) { _ in Task { await SCContext.performMicCheck() }}
+    }
+
+    private var devicePicker: some View {
+        Picker("", selection: $micDevice) {
+            Text("Default".local).tag("default")
+            ForEach(micList, id: \.self) { device in
+                Text(device.localizedName).tag(device.localizedName)
+            }
+        }
+        .labelsHidden()
+        .disabled(!recordMic)
+        .onAppear {
+            if !micList.map({ $0.localizedName }).contains(micDevice) { micDevice = "default" }
+        }
+    }
+
+    @ViewBuilder private var aecWarning: some View {
+        if micDevice != "default" && enableAEC && recordMic {
+            Button { showAECWarning() } label: {
+                Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
+            }
+            .buttonStyle(.plain)
+            .help("Compatibility Warning".local)
+        }
+    }
+
+    private var settingsButton: some View {
+        FooterButton(symbol: "gearshape", help: "Preferences") {
+            closeMainWindow()
+            appDelegate.openSettingPanel()
+        }
+    }
+
+    private var quitButton: some View {
+        FooterButton(symbol: "power", help: "Quit") { NSApp.terminate(nil) }
     }
 
     private func recordArea() {

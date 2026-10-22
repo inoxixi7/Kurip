@@ -374,9 +374,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 let width = isMacOS12 ? 800 : 928
                 let mainPanel = EscPanel(contentRect: NSRect(x: 0, y: 0, width: width + offset, height: 100), styleMask: [.fullSizeContentView, .nonactivatingPanel], backing: .buffered, defer: false)
                 if #available(macOS 13, *) {
-                    // same panel as the menu bar popover, as a floating card
+                    // the menu bar panel's tiles and controls, as a floating bar
                     let shape = RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    let host = NSHostingView(rootView: ContentViewNew()
+                    let host = NSHostingView(rootView: ContentViewNew(horizontal: true)
                         .clipShape(shape)
                         .overlay(shape.strokeBorder(.primary.opacity(0.1))))
                     mainPanel.contentView = host
