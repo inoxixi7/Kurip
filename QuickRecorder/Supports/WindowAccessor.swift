@@ -8,6 +8,15 @@
 import AppKit
 import SwiftUI
 
+private final class WindowObserverView: NSView {
+    var onAttach: ((NSWindow) -> Void)?
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        // one tick later, as before, so the window's content (e.g. split views) is in place
+        if let window, let onAttach { self.onAttach = nil; DispatchQueue.main.async { onAttach(window) } }
+    }
+}
+
 struct WindowAccessor: NSViewRepresentable {
     var onWindowOpen: ((NSWindow?) -> Void)?
     var onWindowActive: ((NSWindow?) -> Void)?
@@ -15,15 +24,12 @@ struct WindowAccessor: NSViewRepresentable {
     var onWindowClose: (() -> Void)?
 
     func makeNSView(context: Context) -> NSView {
-        let view = NSView()
-        DispatchQueue.main.async {
-            if let window = view.window {
-                window.delegate = context.coordinator
-                context.coordinator.window = window
-                self.onWindowOpen?(window)
-            } else {
-                self.onWindowOpen?(nil)
-            }
+        // wait for the real attach: reading view.window on the next runloop tick can still be nil
+        let view = WindowObserverView()
+        view.onAttach = { window in
+            window.delegate = context.coordinator
+            context.coordinator.window = window
+            self.onWindowOpen?(window)
         }
         return view
     }
