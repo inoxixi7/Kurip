@@ -26,9 +26,9 @@ Kurip (栗 *kuri* + clip) is a fork of [QuickRecorder](https://github.com/lihaoy
 - macOS 12.3 or later (tested on macOS 27)
 
 ### Build from source
-1. Clone this repository and open `QuickRecorder.xcodeproj` in Xcode.
+1. Clone this repository and open `Kurip.xcodeproj` in Xcode.
 2. In *Signing & Capabilities*, choose your own team.
-3. Build and run the `QuickRecorder` scheme. The app is produced as `Kurip.app`.
+3. Build and run the `Kurip` scheme. The app is produced as `Kurip.app`.
 4. On first launch, allow Kurip in **System Settings → Privacy & Security → Screen & System Audio Recording**.
 
 ## Features

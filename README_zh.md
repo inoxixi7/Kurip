@@ -26,9 +26,9 @@ Kurip（栗 *kuri* + clip）基于 [@lihaoyun6](https://github.com/lihaoyun6) �
 - macOS 12.3 及以上（已在 macOS 27 上测试）
 
 ### 从源码编译
-1. 克隆本仓库，用 Xcode 打开 `QuickRecorder.xcodeproj`。
+1. 克隆本仓库，用 Xcode 打开 `Kurip.xcodeproj`。
 2. 在 *Signing & Capabilities* 中选择你自己的开发者团队。
-3. 编译并运行 `QuickRecorder` scheme，生成的应用为 `Kurip.app`。
+3. 编译并运行 `Kurip` scheme，生成的应用为 `Kurip.app`。
 4. 首次启动后，在**系统设置 → 隐私与安全性 → 录屏与系统录音**中允许 Kurip。
 
 ## 功能

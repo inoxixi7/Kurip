@@ -74,7 +74,7 @@
 		18CEEE182D097CBF00FBC4BF /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = "zh-Hant"; path = "zh-Hant.lproj/Credits.rtf"; sourceTree = "<group>"; };
 		18CEEE192D097CC500FBC4BF /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		18CEEE1A2D097D6800FBC4BF /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
-		18D3BDE72BCE5DC1006CFFC0 /* QuickRecorder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuickRecorder.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		18D3BDE72BCE5DC1006CFFC0 /* Kurip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kurip.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		18D3BDEA2BCE5DC1006CFFC0 /* QuickRecorderApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickRecorderApp.swift; sourceTree = "<group>"; };
 		18D3BDEC2BCE5DC1006CFFC0 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		18D3BDEE2BCE5DC2006CFFC0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -142,7 +142,7 @@
 		18D3BDE82BCE5DC1006CFFC0 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				18D3BDE72BCE5DC1006CFFC0 /* QuickRecorder.app */,
+				18D3BDE72BCE5DC1006CFFC0 /* Kurip.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -202,9 +202,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		18D3BDE62BCE5DC1006CFFC0 /* QuickRecorder */ = {
+		18D3BDE62BCE5DC1006CFFC0 /* Kurip */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 18D3BDF62BCE5DC2006CFFC0 /* Build configuration list for PBXNativeTarget "QuickRecorder" */;
+			buildConfigurationList = 18D3BDF62BCE5DC2006CFFC0 /* Build configuration list for PBXNativeTarget "Kurip" */;
 			buildPhases = (
 				18D3BDE32BCE5DC1006CFFC0 /* Sources */,
 				18D3BDE42BCE5DC1006CFFC0 /* Frameworks */,
@@ -214,7 +214,7 @@
 			);
 			dependencies = (
 			);
-			name = QuickRecorder;
+			name = Kurip;
 			packageProductDependencies = (
 				181724042BE3BEA600F5F539 /* Sparkle */,
 				18F40B482BFB988A00F0AC70 /* SwiftLAME */,
@@ -222,8 +222,8 @@
 				185582A52D1D1CC100F0CF47 /* AECAudioStream */,
 				18AFF77A2D5F91F800C795A1 /* KeyboardShortcuts */,
 			);
-			productName = QuickRecorder;
-			productReference = 18D3BDE72BCE5DC1006CFFC0 /* QuickRecorder.app */;
+			productName = Kurip;
+			productReference = 18D3BDE72BCE5DC1006CFFC0 /* Kurip.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -241,7 +241,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 18D3BDE22BCE5DC1006CFFC0 /* Build configuration list for PBXProject "QuickRecorder" */;
+			buildConfigurationList = 18D3BDE22BCE5DC1006CFFC0 /* Build configuration list for PBXProject "Kurip" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -264,7 +264,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				18D3BDE62BCE5DC1006CFFC0 /* QuickRecorder */,
+				18D3BDE62BCE5DC1006CFFC0 /* Kurip */,
 			);
 		};
 /* End PBXProject section */
@@ -558,7 +558,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		18D3BDE22BCE5DC1006CFFC0 /* Build configuration list for PBXProject "QuickRecorder" */ = {
+		18D3BDE22BCE5DC1006CFFC0 /* Build configuration list for PBXProject "Kurip" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				18D3BDF42BCE5DC2006CFFC0 /* Debug */,
@@ -567,7 +567,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		18D3BDF62BCE5DC2006CFFC0 /* Build configuration list for PBXNativeTarget "QuickRecorder" */ = {
+		18D3BDF62BCE5DC2006CFFC0 /* Build configuration list for PBXNativeTarget "Kurip" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				18D3BDF72BCE5DC2006CFFC0 /* Debug */,

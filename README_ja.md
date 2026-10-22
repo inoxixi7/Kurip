@@ -26,9 +26,9 @@ Kurip（栗 + クリップ）は、[@lihaoyun6](https://github.com/lihaoyun6) �
 - macOS 12.3 以降（macOS 27 で動作確認済み）
 
 ### ソースからビルド
-1. このリポジトリをクローンし、Xcode で `QuickRecorder.xcodeproj` を開きます。
+1. このリポジトリをクローンし、Xcode で `Kurip.xcodeproj` を開きます。
 2. *Signing & Capabilities* で自分の開発チームを選択します。
-3. `QuickRecorder` スキームをビルドして実行すると、`Kurip.app` が生成されます。
+3. `Kurip` スキームをビルドして実行すると、`Kurip.app` が生成されます。
 4. 初回起動後、**システム設定 → プライバシーとセキュリティ → 画面とシステムオーディオの収録**で Kurip を許可してください。
 
 ## 主な機能

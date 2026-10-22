@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "18D3BDE62BCE5DC1006CFFC0"
-               BuildableName = "QuickRecorder.app"
-               BlueprintName = "QuickRecorder"
-               ReferencedContainer = "container:QuickRecorder.xcodeproj">
+               BuildableName = "Kurip.app"
+               BlueprintName = "Kurip"
+               ReferencedContainer = "container:Kurip.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -44,9 +44,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "18D3BDE62BCE5DC1006CFFC0"
-            BuildableName = "QuickRecorder.app"
-            BlueprintName = "QuickRecorder"
-            ReferencedContainer = "container:QuickRecorder.xcodeproj">
+            BuildableName = "Kurip.app"
+            BlueprintName = "Kurip"
+            ReferencedContainer = "container:Kurip.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -61,9 +61,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "18D3BDE62BCE5DC1006CFFC0"
-            BuildableName = "QuickRecorder.app"
-            BlueprintName = "QuickRecorder"
-            ReferencedContainer = "container:QuickRecorder.xcodeproj">
+            BuildableName = "Kurip.app"
+            BlueprintName = "Kurip"
+            ReferencedContainer = "container:Kurip.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
