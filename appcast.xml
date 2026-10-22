@@ -2,5 +2,27 @@
 <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
     <channel>
         <title>Kurip</title>
+        <item>
+            <title>0.1.0</title>
+            <pubDate>Thu, 22 Oct 2026 19:58:06 +0900</pubDate>
+            <sparkle:version>1</sparkle:version>
+            <sparkle:shortVersionString>0.1.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[<h2>Kurip 0.1.0</h2>
+<p>First release under the Kurip name (formerly QuickRecorder).</p>
+<ul>
+<li>Works on macOS 26 and later: menu bar controls fixed, menu-bar-only by default</li>
+<li>Redesigned main panel, recording toolbars and option bars</li>
+<li>Audio-only recording from its own popover; quit asks for confirmation</li>
+<li>After recording, a card with Show in Finder, Trim and Share</li>
+<li>Settings in the System Settings style, with search</li>
+<li>Recording menu shows Pause / Resume by state, your hotkeys, and Save Current Frame</li>
+<li>A recording that can't start now explains why instead of crashing</li>
+<li>New languages: Japanese and German; Italian completed; language picker in Settings</li>
+<li>Fixes: frame rate on ProMotion displays, magnifier memory leak, AppleScript app matching</li>
+</ul>
+]]></description>
+            <enclosure url="https://github.com/inoxixi7/Kurip/releases/download/v0.1.0/Kurip-0.1.0.zip" length="4651484" type="application/octet-stream" sparkle:edSignature="hiiFl2Gnnd7JNTp/sMD3pfzQNNpiSvOEbrVQ2PmF9Q7Vx3h0ozBkbfemrsAamX4te8FVJ5uAz3Cumvq1P/ksBQ=="/>
+        </item>
     </channel>
 </rss>
