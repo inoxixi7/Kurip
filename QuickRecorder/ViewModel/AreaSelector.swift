@@ -545,18 +545,16 @@ struct StartButton: View {
     @Environment(\.isEnabled) private var isEnabled
 
     var body: some View {
+        // the universal record mark needs no label; the name lives in help and accessibility
         Button(action: action, label: {
-            HStack(spacing: 7) {
-                Circle().fill(.white).frame(width: 10, height: 10)
-                Text("Start").font(.system(size: 13, weight: .semibold)).fixedSize()
-            }
-            .foregroundStyle(.white)
-            .padding(.horizontal, 16)
-            .frame(height: 34)
-            .background(Capsule().fill(Color.red.opacity(isEnabled ? 1 : 0.35)))
-            .shadow(color: .red.opacity(isEnabled ? 0.35 : 0), radius: 6, y: 2)
+            Circle().fill(.white).frame(width: 12, height: 12)
+                .frame(width: 34, height: 34)
+                .background(Circle().fill(Color.red.opacity(isEnabled ? 1 : 0.35)))
+                .shadow(color: .red.opacity(isEnabled ? 0.35 : 0), radius: 6, y: 2)
         })
-        .buttonStyle(.plain)
+        .buttonStyle(PressStyle())
+        .help("Start".local)
+        .accessibilityLabel("Start".local)
         .keyboardShortcut(.defaultAction)
     }
 }
