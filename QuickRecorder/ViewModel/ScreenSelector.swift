@@ -150,10 +150,11 @@ class ScreenSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
 
     func setupStreams() {
         SCContext.updateAvailableContent {
-            Task {
+            // main actor: streams and thumbnails are also touched by the sample handler on .main
+            Task { @MainActor in
                 do {
                     self.streams.removeAll()
-                    DispatchQueue.main.async { self.screenThumbnails.removeAll() }
+                    self.screenThumbnails.removeAll()
                     guard let screens = SCContext.availableContent?.displays else { return }
                     self.allScreens = screens
                     let qrSelf = SCContext.getSelf()

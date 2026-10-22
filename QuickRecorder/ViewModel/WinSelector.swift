@@ -245,10 +245,11 @@ class WindowSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
 
     func setupStreams(filter: Bool = true, capture: Bool = true) {
         SCContext.updateAvailableContent {
-            Task {
+            // main actor: streams and thumbnails are also touched by the sample handler on .main
+            Task { @MainActor in
                 do {
                     self.streams.removeAll()
-                    DispatchQueue.main.async { self.windowThumbnails.removeAll() }
+                    self.windowThumbnails.removeAll()
                     self.allWindows = SCContext.getWindows().filter({
                         !($0.title == "" && $0.owningApplication?.bundleIdentifier == "com.apple.finder")
                         && $0.owningApplication?.bundleIdentifier != Bundle.main.bundleIdentifier
@@ -281,18 +282,17 @@ class WindowSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
                             let thumbnail = WindowThumbnail(image: NSImage.unknowScreen, window: w)
                             guard let displays = SCContext.availableContent?.displays.filter({ NSIntersectsRect(w.frame, $0.frame) }) else { break }
                             for d in displays {
-                                DispatchQueue.main.async {
-                                    if self.windowThumbnails[d] != nil {
-                                        if !self.windowThumbnails[d]!.contains(where: { $0.window == w }) {
-                                            self.windowThumbnails[d]!.append(thumbnail)
-                                        }
-                                    } else {
-                                        self.windowThumbnails[d] = [thumbnail]
+                                if self.windowThumbnails[d] != nil {
+                                    if !self.windowThumbnails[d]!.contains(where: { $0.window == w }) {
+                                        self.windowThumbnails[d]!.append(thumbnail)
                                     }
+                                } else {
+                                    self.windowThumbnails[d] = [thumbnail]
                                 }
                             }
                         }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { self.isReady = true }
+                        try? await Task.sleep(nanoseconds: 100_000_000)
+                        self.isReady = true
                     }
                 } catch {
                     print("Get windowshot error：\(error)")
