@@ -49,6 +49,8 @@ struct GeneralView: View {
     @AppStorage("showMenubar") private var showMenubar: Bool = true
     
     @State private var launchAtLogin = false
+    // only the app's own domain: ud.array(forKey:) would also return the system-wide list
+    @State private var language = (UserDefaults.standard.persistentDomain(forName: Bundle.main.bundleIdentifier!)?["AppleLanguages"] as? [String])?.first ?? ""
 
     var body: some View {
         SForm {
@@ -74,6 +76,24 @@ struct GeneralView: View {
                 SToggle("Show Kurip on Menu Bar", isOn: $showMenubar)
                     //.disabled(!showOnDock)
             }
+            SGroupBox(label: "Language") {
+                SPicker("Language", selection: $language) {
+                    Text("Follow System").tag("")
+                    // endonyms, so each is readable whatever the current language
+                    Text(verbatim: "English").tag("en")
+                    Text(verbatim: "简体中文").tag("zh-Hans")
+                    Text(verbatim: "繁體中文").tag("zh-Hant")
+                    Text(verbatim: "日本語").tag("ja")
+                    Text(verbatim: "Italiano").tag("it")
+                }
+                .onChange(of: language) { newValue in
+                    if newValue.isEmpty { ud.removeObject(forKey: "AppleLanguages") } else { ud.set([newValue], forKey: "AppleLanguages") }
+                    let alert = createAlert(level: .informational, title: "Restart Required",
+                                            message: "The new language takes effect after Kurip restarts.",
+                                            button1: "Restart Now", button2: "Later")
+                    if alert.runModal() == .alertFirstButtonReturn { relaunch() }
+                }
+            }
             SGroupBox(label: "Update") { UpdaterSettingsView(updater: updaterController.updater) }
             VStack(spacing: 8) {
                 CheckForUpdatesView(updater: updaterController.updater)
@@ -95,6 +115,15 @@ struct GeneralView: View {
             }
         }
     }
+}
+
+private func relaunch() {
+    let task = Process()
+    task.executableURL = URL(fileURLWithPath: "/bin/sh")
+    // wait for this instance to exit so the single-instance check doesn't fire
+    task.arguments = ["-c", "while kill -0 \(ProcessInfo.processInfo.processIdentifier) 2>/dev/null; do sleep 0.2; done; open \"$0\"", Bundle.main.bundlePath]
+    try? task.run()
+    NSApp.terminate(nil)
 }
 
 struct RecorderView: View {

@@ -243,3 +243,10 @@
 "Cursor" = "游標";
 
 "Filter" = "篩選";
+
+"Language" = "語言";
+"Follow System" = "跟隨系統";
+"Restart Required" = "需要重新啟動";
+"The new language takes effect after Kurip restarts." = "新語言將在 Kurip 重新啟動後生效。";
+"Restart Now" = "立即重新啟動";
+"Later" = "稍後";

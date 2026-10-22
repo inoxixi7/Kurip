@@ -1,0 +1,7 @@
+/* 
+  InfoPlist.strings
+  Kurip
+*/
+"NSMicrophoneUsageDescription" = "マイクの音声を録音するために Kurip はこの許可を使用します。";
+"NSCameraUsageDescription" = "カメラやモバイルデバイスの映像を収録するために Kurip はこの許可を使用します。";
+"NSHumanReadableCopyright" = "© 2024 lihaoyun6, © 2026 inoxixi7. AGPL-3.0 ライセンスで公開。";
