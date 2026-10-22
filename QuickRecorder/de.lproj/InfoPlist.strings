@@ -1,0 +1,7 @@
+/* 
+  InfoPlist.strings
+  Kurip
+*/
+"NSMicrophoneUsageDescription" = "Kurip benötigt diese Berechtigung, um Ton vom Mikrofon aufzunehmen.";
+"NSCameraUsageDescription" = "Kurip benötigt diese Berechtigung, um Bild von der Kamera oder einem Mobilgerät aufzunehmen.";
+"NSHumanReadableCopyright" = "© 2024 lihaoyun6, © 2026 inoxixi7. Veröffentlicht unter AGPL-3.0.";

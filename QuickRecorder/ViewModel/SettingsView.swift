@@ -38,7 +38,8 @@ struct SettingsView: View {
             }
             .listStyle(.sidebar)
             .padding(.top, 9)
-        }.frame(width: 600, height: 512)
+            .frame(width: 170) // room for the longer translations (ショートカット, Tastaturkurzbefehle…)
+        }.frame(width: 630, height: 512)
     }
 }
 
@@ -84,6 +85,7 @@ struct GeneralView: View {
                     Text(verbatim: "简体中文").tag("zh-Hans")
                     Text(verbatim: "繁體中文").tag("zh-Hant")
                     Text(verbatim: "日本語").tag("ja")
+                    Text(verbatim: "Deutsch").tag("de")
                     Text(verbatim: "Italiano").tag("it")
                 }
                 .onChange(of: language) { newValue in
@@ -308,26 +310,26 @@ struct HotkeyView: View {
     var body: some View {
         SForm(spacing: 10) {
             SGroupBox(label: "Hotkey") {
-                SItem(label: "Open Main Panel") { KeyboardShortcuts.Recorder("", name: .showPanel) }
+                SItem(label: "Open Main Panel") { ShortcutRecorder(name: .showPanel) }
             }
             SGroupBox {
-                SItem(label: "Stop Recording") { KeyboardShortcuts.Recorder("", name: .stop) }
+                SItem(label: "Stop Recording") { ShortcutRecorder(name: .stop) }
                 SDivider()
-                SItem(label: "Pause / Resume") { KeyboardShortcuts.Recorder("", name: .pauseResume) }
+                SItem(label: "Pause / Resume") { ShortcutRecorder(name: .pauseResume) }
             }
             SGroupBox {
-                SItem(label: "Record System Audio") { KeyboardShortcuts.Recorder("", name: .startWithAudio) }
+                SItem(label: "Record System Audio") { ShortcutRecorder(name: .startWithAudio) }
                 SDivider()
-                SItem(label: "Record Current Screen") { KeyboardShortcuts.Recorder("", name: .startWithScreen) }
+                SItem(label: "Record Current Screen") { ShortcutRecorder(name: .startWithScreen) }
                 SDivider()
-                SItem(label: "Record Topmost Window") { KeyboardShortcuts.Recorder("", name: .startWithWindow) }
+                SItem(label: "Record Topmost Window") { ShortcutRecorder(name: .startWithWindow) }
                 SDivider()
-                SItem(label: "Select Area to Record") { KeyboardShortcuts.Recorder("", name: .startWithArea) }
+                SItem(label: "Select Area to Record") { ShortcutRecorder(name: .startWithArea) }
             }
             SGroupBox {
-                SItem(label: "Save Current Frame") { KeyboardShortcuts.Recorder("", name: .saveFrame) }
+                SItem(label: "Save Current Frame") { ShortcutRecorder(name: .saveFrame) }
                 SDivider()
-                SItem(label: "Toggle Screen Magnifier") {KeyboardShortcuts.Recorder("", name: .screenMagnifier) }
+                SItem(label: "Toggle Screen Magnifier") {ShortcutRecorder(name: .screenMagnifier) }
             }
         }
     }
@@ -401,5 +403,24 @@ extension AppDelegate {
         }catch{
             print("Failed to \(sender.state == .on ? "enable" : "disable") launch at login: \(error.localizedDescription)")
         }
+    }
+}
+
+// KeyboardShortcuts.Recorder pins its field at 130pt, clipping longer placeholders ("Kurzbefehl aufnehmen");
+// host the Cocoa recorder with low hugging so the frame can widen it.
+private struct ShortcutRecorder: NSViewRepresentable {
+    let name: KeyboardShortcuts.Name
+
+    func makeNSView(context: Context) -> KeyboardShortcuts.RecorderCocoa {
+        let view = KeyboardShortcuts.RecorderCocoa(for: name)
+        view.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        return view
+    }
+
+    func updateNSView(_ nsView: KeyboardShortcuts.RecorderCocoa, context: Context) {}
+
+    @available(macOS 13, *)
+    func sizeThatFits(_ proposal: ProposedViewSize, nsView: KeyboardShortcuts.RecorderCocoa, context: Context) -> CGSize? {
+        CGSize(width: 180, height: nsView.intrinsicContentSize.height)
     }
 }

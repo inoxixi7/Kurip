@@ -94,6 +94,9 @@
 		1A0A00012F00000000000001 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = ja; path = ja.lproj/Credits.rtf; sourceTree = "<group>"; };
 		1A0A00012F00000000000002 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1A0A00012F00000000000003 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		1A0A00012F00000000000011 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = de; path = de.lproj/Credits.rtf; sourceTree = "<group>"; };
+		1A0A00012F00000000000012 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		1A0A00012F00000000000013 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -255,6 +258,7 @@
 				it,
 				"zh-Hant",
 				ja,
+				de,
 			);
 			mainGroup = 18D3BDDE2BCE5DC1006CFFC0;
 			packageReferences = (
@@ -335,6 +339,7 @@
 				18A735972BFBA12F002314AF /* it */,
 				18CEEE182D097CBF00FBC4BF /* zh-Hant */,
 				1A0A00012F00000000000001 /* ja */,
+				1A0A00012F00000000000011 /* de */,
 			);
 			name = Credits.rtf;
 			sourceTree = "<group>";
@@ -346,6 +351,7 @@
 				18A735992BFBA138002314AF /* it */,
 				18CEEE1A2D097D6800FBC4BF /* zh-Hant */,
 				1A0A00012F00000000000002 /* ja */,
+				1A0A00012F00000000000012 /* de */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -357,6 +363,7 @@
 				18A735982BFBA132002314AF /* it */,
 				18CEEE192D097CC500FBC4BF /* zh-Hant */,
 				1A0A00012F00000000000003 /* ja */,
+				1A0A00012F00000000000013 /* de */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
