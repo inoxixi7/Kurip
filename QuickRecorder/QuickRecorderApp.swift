@@ -435,7 +435,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     }
 }
 
-func closeMainWindow() {
+@MainActor func closeMainWindow() {
     StatusBarController.shared.popover.performClose(nil)
     for w in NSApp.windows.filter({ $0.title == "Kurip".local }) {
         w.close()
