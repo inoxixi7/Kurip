@@ -19,6 +19,7 @@ struct WinSelector: View {
     @State private var disableFilter = false
     @State private var donotCapture = false
     @State private var autoStop = 0
+    @State private var filterHovering = false
     var appDelegate = AppDelegate.shared
     
     var body: some View {
@@ -147,20 +148,7 @@ struct WinSelector: View {
                 }
                 HStack(spacing: 10) {
                     ToolbarButton(symbol: "arrow.clockwise", title: "Refresh".local) { refresh() }
-                    Menu {
-                        Toggle("Show Windows with No Title".local, isOn: $disableFilter)
-                        Toggle("Don't Create Thumbnails".local, isOn: $donotCapture)
-                    } label: {
-                        Image(systemName: "line.3.horizontal.decrease.circle")
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(.secondary)
-                            .frame(width: 26, height: 50)
-                            .contentShape(Rectangle())
-                    }
-                    .menuStyle(.borderlessButton)
-                    .menuIndicator(.hidden)
-                    .fixedSize()
-                    .help("Filter".local)
+                    filterMenu
                     .onChange(of: disableFilter) { _ in refresh() }
                     .onChange(of: donotCapture) { _ in refresh() }
                     Divider().frame(height: 40)
@@ -192,6 +180,21 @@ struct WinSelector: View {
         }
     }
     
+    @ViewBuilder private var filterMenu: some View {
+        let menu = Menu {
+            Toggle("Show Windows with No Title".local, isOn: $disableFilter)
+            Toggle("Don't Create Thumbnails".local, isOn: $donotCapture)
+        } label: {
+            ToolbarLabel(symbol: "line.3.horizontal.decrease", title: "Filter".local, hovering: filterHovering)
+                .contentShape(Rectangle())
+        }
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .onHover { filterHovering = $0 }
+        // .button keeps the custom label intact, so it matches the Refresh button beside it
+        if #available(macOS 13, *) { menu.menuStyle(.button).buttonStyle(.plain) } else { menu.menuStyle(.borderlessButton) }
+    }
+
     private func refresh() {
         viewModel.setupStreams(filter: !disableFilter, capture: !donotCapture)
         selected.removeAll()

@@ -177,7 +177,8 @@ struct OptionsView: View {
     var body: some View {
         HStack(spacing: 14) {
             HStack(spacing: 6) {
-                VStack(alignment: .leading, spacing: rowSpacing) {
+                // trailing labels sit right next to their values, however long the longest one is
+                VStack(alignment: .trailing, spacing: rowSpacing) {
                     OptionLabel("Resolution")
                     OptionLabel("Frame Rate")
                 }
@@ -193,7 +194,7 @@ struct OptionsView: View {
                         ForEach([240, 144, 120, 90, 60, 30, 24, 15, 10], id: \.self) { Text("\($0) FPS").tag($0) }
                     }.frame(height: rowHeight)
                 }
-                VStack(alignment: .leading, spacing: rowSpacing) {
+                VStack(alignment: .trailing, spacing: rowSpacing) {
                     OptionLabel("Quality")
                     OptionLabel("Background")
                 }.padding(.leading, 8)

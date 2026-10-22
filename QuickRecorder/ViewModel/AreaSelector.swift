@@ -83,19 +83,27 @@ struct ToolbarButton: View {
     @State private var hovering = false
 
     var body: some View {
-        Button(action: action) {
-            VStack(spacing: 4) {
-                Image(systemName: symbol).font(.system(size: 16, weight: .medium)).frame(height: 18)
-                Text(title).font(.system(size: 11, weight: .medium)).monospacedDigit().lineLimit(1).fixedSize()
-            }
-            .foregroundStyle(hovering ? .primary : .secondary)
-            .padding(.horizontal, 8)
-            .frame(minWidth: 64, minHeight: 50)
-            .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(.primary.opacity(hovering ? 0.08 : 0)))
-        }
+        Button(action: action) { ToolbarLabel(symbol: symbol, title: title, hovering: hovering) }
         .buttonStyle(.plain)
         .fixedSize() // long translations must widen the button, not spill past its hover background
         .onHover { hovering = $0 }
+    }
+}
+
+struct ToolbarLabel: View {
+    let symbol: String
+    let title: String
+    var hovering = false
+
+    var body: some View {
+        VStack(spacing: 4) {
+            Image(systemName: symbol).font(.system(size: 16, weight: .medium)).frame(height: 18)
+            Text(title).font(.system(size: 11, weight: .medium)).monospacedDigit().lineLimit(1).fixedSize()
+        }
+        .foregroundStyle(hovering ? .primary : .secondary)
+        .padding(.horizontal, 8)
+        .frame(minWidth: 64, minHeight: 50)
+        .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(.primary.opacity(hovering ? 0.08 : 0)))
     }
 }
 
