@@ -263,3 +263,7 @@
 "Quit Kurip?" = "Uscire da Kurip?";
 
 "Share" = "Condividi";
+"Pause Recording" = "Metti in pausa la registrazione";
+"Resume Recording" = "Riprendi la registrazione";
+"Kurip can't write to the output folder:\n%@\n\nChoose another folder in Settings > Output, or check its permissions." = "Kurip non può scrivere nella cartella di destinazione:\n%@\n\nScegli un'altra cartella in Impostazioni > Output o controllane i permessi.";
+"Kurip couldn't create the recording file in:\n%@\n\nCheck that the disk has free space and the folder is still available." = "Kurip non è riuscito a creare il file di registrazione in:\n%@\n\nVerifica che il disco abbia spazio libero e che la cartella sia ancora disponibile.";

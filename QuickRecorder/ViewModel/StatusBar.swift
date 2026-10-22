@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import KeyboardShortcuts
 
 class PopoverState: ObservableObject {
     static let shared = PopoverState()
@@ -172,7 +173,7 @@ struct StatusBarItem: View {
 
 // Native status item: SwiftUI controls hosted inside NSStatusBarButton no longer receive clicks
 // on recent macOS menu bars, so clicks go through the button's action and a standard NSMenu.
-final class StatusBarController: NSObject {
+@MainActor final class StatusBarController: NSObject {
     static let shared = StatusBarController()
     let popover: NSPopover = {
         let popover = NSPopover()
@@ -192,7 +193,7 @@ final class StatusBarController: NSObject {
         if SCContext.streamType != nil {
             popover.performClose(nil)
             if timer == nil {
-                let t = Timer(timeInterval: 0.5, repeats: true) { [weak self] _ in self?.tick() }
+                let t = Timer(timeInterval: 0.5, repeats: true) { [weak self] _ in Task { @MainActor in self?.tick() } }
                 RunLoop.main.add(t, forMode: .common)
                 timer = t
             }
@@ -209,9 +210,11 @@ final class StatusBarController: NSObject {
 
     private func tick() {
         guard SCContext.streamType != nil, let button = statusBarItem.button else { return }
-        let symbol = SCContext.isPaused ? "pause.circle.fill" : "record.circle"
+        let justSaved = SCContext.frameSavedAt.map { Date.now.timeIntervalSince($0) < 1.5 } ?? false
+        let symbol = justSaved ? "camera.viewfinder" : SCContext.isPaused ? "pause.circle.fill" : "record.circle"
+        let color: NSColor = justSaved ? .systemGreen : SCContext.isPaused ? .systemOrange : .systemRed
         button.image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)?
-            .withSymbolConfiguration(.init(paletteColors: [SCContext.isPaused ? .systemOrange : .systemRed]))
+            .withSymbolConfiguration(.init(paletteColors: [color]))
         button.title = " " + SCContext.getRecordingLength()
 
         if let start = SCContext.startTime, SCContext.autoStop != 0,
@@ -248,9 +251,11 @@ final class StatusBarController: NSObject {
             return
         }
         let menu = NSMenu()
-        menu.addItem(item("Stop Recording", symbol: "stop.circle") { [weak self] in self?.stop() })
+        menu.addItem(item("Stop Recording", symbol: "stop.circle", shortcut: .stop) { [weak self] in self?.stop() })
         if type != .idevice {
-            menu.addItem(item("Pause / Resume", symbol: SCContext.isPaused ? "play.circle" : "pause.circle") { [weak self] in
+            // name the action the click will take, not both
+            menu.addItem(item(SCContext.isPaused ? "Resume Recording" : "Pause Recording",
+                              symbol: SCContext.isPaused ? "play.circle" : "pause.circle", shortcut: .pauseResume) { [weak self] in
                 SCContext.pauseRecording()
                 self?.tick()
             })
@@ -260,13 +265,14 @@ final class StatusBarController: NSObject {
                 if deviceWindow.isVisible { deviceWindow.close() } else { deviceWindow.orderFront(nil) }
             })
         } else if type != .systemaudio {
+            menu.addItem(item("Save Current Frame", symbol: "camera.viewfinder", shortcut: .saveFrame) { SCContext.saveFrame = true })
             menu.addItem(.separator())
             let cam = item("Camera Overlay…", symbol: "camera") { [weak self] in
                 self?.showPopover(CameraPopoverView(closePopover: { self?.popover.performClose(nil) }))
             }
             cam.state = SCContext.isCameraRunning() ? .on : .off
             menu.addItem(cam)
-            let magnifier = item("Toggle Screen Magnifier", symbol: "plus.magnifyingglass") { SCContext.isMagnifierEnabled.toggle() }
+            let magnifier = item("Toggle Screen Magnifier", symbol: "plus.magnifyingglass", shortcut: .screenMagnifier) { SCContext.isMagnifierEnabled.toggle() }
             magnifier.state = SCContext.isMagnifierEnabled ? .on : .off
             menu.addItem(magnifier)
         }
@@ -282,9 +288,10 @@ final class StatusBarController: NSObject {
         popover.contentViewController?.view.window?.makeKey()
     }
 
-    private func item(_ title: String, symbol: String, action: @escaping () -> Void) -> NSMenuItem {
+    private func item(_ title: String, symbol: String, shortcut: KeyboardShortcuts.Name? = nil, action: @escaping () -> Void) -> NSMenuItem {
         let item = ClosureMenuItem(title: title.local, action: action)
         item.image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)
+        if let shortcut { item.setShortcut(for: shortcut) } // shows the user's hotkey next to the item
         return item
     }
 }

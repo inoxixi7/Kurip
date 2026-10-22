@@ -27,6 +27,7 @@ class SCContext {
     static var isMagnifierEnabled = false
     static var restoreRecordMic: Bool? // set by AppleScript "microphone" override, restored once the recording stops
     static var saveFrame = false
+    static var frameSavedAt: Date? // brief menu bar confirmation
     static var isPaused = false
     static var isResume = false
     static var isSkipFrame = false

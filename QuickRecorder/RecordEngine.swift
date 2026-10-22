@@ -32,6 +32,11 @@ extension AppDelegate {
                 _ = createAlert(title: "Failed to Record".local, message: "The output path is a file instead of a folder!".local, button1: "OK").runModal()
                 return
             }
+            if !fd.isWritableFile(atPath: outputPath) {
+                SCContext.streamType = nil
+                _ = createAlert(title: "Failed to Record".local, message: String(format: "Kurip can't write to the output folder:\n%@\n\nChoose another folder in Settings > Output, or check its permissions.".local, outputPath), button1: "OK").runModal()
+                return
+            }
         } else {
             do {
                 try fd.createDirectory(atPath: outputPath, withIntermediateDirectories: true, attributes: nil)
@@ -132,7 +137,7 @@ extension AppDelegate {
         }
         if SCContext.streamType == .systemaudio {
             SCContext.filter = SCContentFilter(display: screen, excludingApplications: [], exceptingWindows: [])
-            prepareAudioRecording()
+            do { try prepareAudioRecording() } catch { recordingFailed(fileError(error)); return }
         }
         Task { await record(filter: SCContext.filter!, fastStart: fastStart) }
     }
@@ -289,14 +294,20 @@ extension AppDelegate {
             try SCContext.stream.addStreamOutput(self, type: .screen, sampleHandlerQueue: .global())
             if #available(macOS 13, *) { try SCContext.stream.addStreamOutput(self, type: .audio, sampleHandlerQueue: .global()) }
             if !audioOnly {
-                initVideo(conf: conf)
+                do { try initVideo(conf: conf) } catch { throw fileError(error) }
             } else {
                 //SCContext.startTime = Date.now
                 if recordMic { startMicRecording() }
             }
             try await SCContext.stream.startCapture()
         } catch {
-            assertionFailure("capture failed".local)
+            if audioOnly && recordMic { // the mic is already running for audio-only recordings
+                SCContext.audioEngine.inputNode.removeTap(onBus: 0)
+                SCContext.audioEngine.stop()
+                AudioRecorder.shared.stop()
+                if enableAEC { try? SCContext.AECEngine.stopAudioUnit() }
+            }
+            recordingFailed(error)
             return
         }
         if !audioOnly { registerGlobalMouseMonitor() }
@@ -304,7 +315,23 @@ extension AppDelegate {
         if preventSleep { SleepPreventer.shared.preventSleep(reason: "Screen recording in progress") }
     }
 
-    func prepareAudioRecording() {
+    // a recording that can't start must say why instead of crashing or failing silently
+    // the system's file errors are bare codes; say what to check instead
+    func fileError(_ error: Error) -> Error {
+        let message = String(format: "Kurip couldn't create the recording file in:\n%@\n\nCheck that the disk has free space and the folder is still available.".local, saveDirectory ?? "")
+        return NSError(domain: "Kurip", code: 1, userInfo: [NSLocalizedDescriptionKey: message, NSUnderlyingErrorKey: error])
+    }
+
+    func recordingFailed(_ error: Error) {
+        SCContext.stream = nil
+        SCContext.streamType = nil
+        DispatchQueue.main.async {
+            updateStatusBar()
+            _ = createAlert(title: "Failed to Record".local, message: error.localizedDescription, button1: "OK".local).runModal()
+        }
+    }
+
+    func prepareAudioRecording() throws {
         var fileEnding = audioFormat.rawValue
         var fileType = AVFileType.m4a
         let encorder = fileEnding == AudioFormat.mp3.rawValue ? "aac" : fileEnding
@@ -326,11 +353,11 @@ extension AppDelegate {
             try? fd.createDirectory(at: SCContext.filePath.url, withIntermediateDirectories: true, attributes: nil)
             try? jsonString.write(to: infoJsonURL, atomically: true, encoding: .utf8)
             
-            SCContext.audioFile = try! AVAudioFile(forWriting: SCContext.filePath1.url, settings: SCContext.updateAudioSettings(), commonFormat: .pcmFormatFloat32, interleaved: false)
+            SCContext.audioFile = try AVAudioFile(forWriting: SCContext.filePath1.url, settings: SCContext.updateAudioSettings(), commonFormat: .pcmFormatFloat32, interleaved: false)
 
             let sampleRate = SCContext.getSampleRate() ?? 48000
             let settings = SCContext.updateAudioSettings(rate: sampleRate)
-            SCContext.vW = try? AVAssetWriter.init(outputURL: SCContext.filePath2.url, fileType: fileType)
+            SCContext.vW = try AVAssetWriter.init(outputURL: SCContext.filePath2.url, fileType: fileType)
             SCContext.micInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: settings)
             SCContext.micInput.expectsMediaDataInRealTime = true
             if SCContext.vW.canAdd(SCContext.micInput) { SCContext.vW.add(SCContext.micInput) }
@@ -339,7 +366,7 @@ extension AppDelegate {
         } else {
             SCContext.filePath = "\(path).\(fileEnding)"
             SCContext.filePath1 = SCContext.filePath
-            SCContext.audioFile = try! AVAudioFile(forWriting: SCContext.filePath.url, settings: SCContext.updateAudioSettings(), commonFormat: .pcmFormatFloat32, interleaved: false)
+            SCContext.audioFile = try AVAudioFile(forWriting: SCContext.filePath.url, settings: SCContext.updateAudioSettings(), commonFormat: .pcmFormatFloat32, interleaved: false)
         }
     }
 }
@@ -361,7 +388,7 @@ extension SCDisplay {
 }
 
 extension AppDelegate {
-    func initVideo(conf: SCStreamConfiguration) {
+    func initVideo(conf: SCStreamConfiguration) throws {
         SCContext.startTime = nil
 
         let fileEnding = videoFormat.rawValue
@@ -377,7 +404,7 @@ extension AppDelegate {
         } else {
             SCContext.filePath = "\(SCContext.getFilePath()).\(fileEnding)"
         }
-        SCContext.vW = try? AVAssetWriter.init(outputURL: SCContext.filePath.url, fileType: fileType!)
+        SCContext.vW = try AVAssetWriter.init(outputURL: SCContext.filePath.url, fileType: fileType!)
         let encoderIsH265 = (encoder.rawValue == Encoder.h265.rawValue) || recordHDR
         let fpsMultiplier: Double = Double(frameRate)/8
         let encoderMultiplier: Double = encoderIsH265 ? 0.5 : 0.9
@@ -494,6 +521,7 @@ extension AppDelegate {
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of outputType: SCStreamOutputType) {
         if SCContext.saveFrame, let imageBuffer = sampleBuffer.imageBuffer {
             SCContext.saveFrame = false
+            SCContext.frameSavedAt = .now
             
             var ciImage = CIImage(cvPixelBuffer: imageBuffer)
             let url = "\(SCContext.getFilePath(capture: true)).png".url

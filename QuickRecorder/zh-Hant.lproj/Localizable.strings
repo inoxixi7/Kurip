@@ -253,3 +253,7 @@
 "Quit Kurip?" = "要結束 Kurip 嗎？";
 
 "Share" = "分享";
+"Pause Recording" = "暫停錄製";
+"Resume Recording" = "繼續錄製";
+"Kurip can't write to the output folder:\n%@\n\nChoose another folder in Settings > Output, or check its permissions." = "Kurip 無法寫入輸出檔案夾：\n%@\n\n請在「設定 > 輸出」中選擇其他檔案夾，或檢查該檔案夾的權限。";
+"Kurip couldn't create the recording file in:\n%@\n\nCheck that the disk has free space and the folder is still available." = "Kurip 無法在以下位置建立錄製檔案：\n%@\n\n請確認磁碟有剩餘空間，且該檔案夾仍可使用。";
