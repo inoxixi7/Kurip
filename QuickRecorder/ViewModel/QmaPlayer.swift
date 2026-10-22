@@ -674,5 +674,5 @@ class AudioPlayerManager: ObservableObject {
 }
 
 extension UTType {
-    static let qma = UTType(exportedAs: "com.lihaoyun6.QuickRecorder.qma")
+    static let qma = UTType(exportedAs: "com.inoxixi7.Kurip.qma")
 }

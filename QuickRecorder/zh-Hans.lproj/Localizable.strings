@@ -1,6 +1,6 @@
 /* 
   Localizable.strings
-  QuickRecorder
+  Kurip
 
   Created by lihaoyun6 on 2024/4/16.
 */
@@ -19,9 +19,9 @@
 "Select Applications" = "选择应用程序";
 "Permission Required" = "需要授权";
 "Compatibility Warning" = "兼容性警告";
-"You are using macOS 12.7.4\nOutput files will be randomly corrupted on this version of macOS!\n\nPlease upgrade to 12.7.5 to solve it." = "检测到当前系统版本为 macOS 12.7.4\nQuickRecorder 在当前系统版本中会\n随机出现录像文件保存失败的情况!\n\n请升级至 macOS 12.7.5 以解决此问题.";
-"QuickRecorder needs screen recording permissions, even if you only intend on recording audio." = "QuickRecorder 需要获取录屏权限\n(即使只是用来录制音频)";
-"QuickRecorder needs permission to record your microphone." = "QuickRecorder 需要获取麦克风权限来录制所需的声音";
+"You are using macOS 12.7.4\nOutput files will be randomly corrupted on this version of macOS!\n\nPlease upgrade to 12.7.5 to solve it." = "检测到当前系统版本为 macOS 12.7.4\nKurip 在当前系统版本中会\n随机出现录像文件保存失败的情况!\n\n请升级至 macOS 12.7.5 以解决此问题.";
+"Kurip needs screen recording permissions, even if you only intend on recording audio." = "Kurip 需要获取录屏权限\n(即使只是用来录制音频)";
+"Kurip needs permission to record your microphone." = "Kurip 需要获取麦克风权限来录制所需的声音";
 "Please select a folder to save output files" = "请选择录音/录屏文件的保存位置";
 "Open Settings" = "打开系统设置";
 "Quit" = "退出程序";
@@ -65,7 +65,7 @@
 "Audio" = "音频设置";
 "Video" = "视频设置";
 "Save" = "保存位置";
-"Exclude QuickRecorder itself" = "排除QuickRecorder窗口";
+"Exclude Kurip itself" = "排除Kurip窗口";
 "Highlight the Mouse Cursor" = "高亮显示鼠标指针";
 "Not available for \"Single Window Capture\"" = "此功能在录制单个窗口时不可用";
 "Normal - 128Kbps" = "标准 - 128Kbps";
@@ -86,7 +86,7 @@
 "File size: %@" = "文件大小: %@";
 "Recording: " = "正在录制: ";
 "Preferences…" = "设置…";
-"Quit QuickRecorder" = "退出QuickRecorder";
+"Quit Kurip" = "退出Kurip";
 "Multiple Windows" = "多个窗口";
 "Multiple Apps" = "多个应用";
 "Unknown App" = "未知应用";
@@ -135,8 +135,8 @@
 "Automatically check for updates" = "自动检查程序更新";
 "Automatically download updates" = "自动下载程序更新";
 "Connect your device via USB" = "请通过 USB 连接您的设备";
-"Show QuickRecorder on Dock" = "在程序坞中显示 QuickRecorder";
-"Show QuickRecorder on Menu Bar" = "在菜单栏中显示 QuickRecorder";
+"Show Kurip on Dock" = "在程序坞中显示 Kurip";
+"Show Kurip on Menu Bar" = "在菜单栏中显示 Kurip";
 "Icon Settings" = "图标设置";
 "Still Processing" = "仍在处理";
 "Mixing audio track..." = "正在混缩音轨...";
@@ -146,8 +146,8 @@
 "OK" = "好";
 "Failed to save file" = "保存文件时出错";
 "Enable Acoustic Echo Cancellation" = "消除麦克风回声";
-"QuickRecorder is Running" = "QuickRecorder 已在运行";
-"Please do not run multiple instances!" = "请勿重复运行多个 QuickRecorder 实例!";
+"Kurip is Running" = "Kurip 已在运行";
+"Please do not run multiple instances!" = "请勿重复运行多个 Kurip 实例!";
 "Show Windows with No Title" = "显示无标题窗口";
 "Don't Create Thumbnails" = "不生成缩略图";
 "Record HDR" = "录制HDR格式";
@@ -211,7 +211,7 @@
 "Use H.265" = "使用 H.265";
 "Continue with H.264" = "继续使用 H.264";
 "Would you like to use H.265 format for better video quality and smaller file size?" = "是否使用 H.265 编码格式以获得\n更好的录像画质和更小的文件体积?";
-"QuickRecorder needs this permission to record your camera or mobile device." = "QuickRecorder 需要使用此权限以录制来自摄像头或移动设备的画面.";
+"Kurip needs this permission to record your camera or mobile device." = "Kurip 需要使用此权限以录制来自摄像头或移动设备的画面.";
 "Select Window Directly" = "直接点选窗口";
 
 // Please don't translate the following warning strings, it will make it difficult for me to read the logs
@@ -227,3 +227,5 @@
 "audio file writing issue" = "音频文件写入出错";
 "closing stream with error:\n" = "关闭流时发生错误:\n";
 "\nthis might be due to the window closing or the user stopping from the sonoma ui" = "\n这可能是有由于用户关闭了正在录制中的窗口, 或使用窗口上的附加按钮停止了录制.";
+"Camera Overlay…" = "摄像头浮窗…";
+"Show / Hide Device Window" = "显示/隐藏设备画面";

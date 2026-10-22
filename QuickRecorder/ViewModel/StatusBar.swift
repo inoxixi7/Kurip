@@ -13,18 +13,14 @@ class PopoverState: ObservableObject {
     @Published var isPaused: Bool = false
 }
 
+// Floating recording controller, shown in `controlPanel` when the menu bar hides the status item.
 struct StatusBarItem: View {
     @State private var deviceWindowIsShowing = true
-    @State private var isMainMenuShowing = false
     @State private var isHovering = false
     @State private var recordingLength = "00:00"
-    //@State private var isPassed = SCContext.isPaused
     @StateObject private var popoverState = PopoverState.shared
-    //@NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @AppStorage("miniStatusBar") private var miniStatusBar: Bool = false
-    //@AppStorage("highlightMouse") private var highlightMouse: Bool = false
-    private var appDelegate = AppDelegate.shared
-    
+
     var body: some View {
         HStack(spacing: 0) {
             if SCContext.streamType != nil {
@@ -37,11 +33,7 @@ struct StatusBarItem: View {
                         if miniStatusBar {
                             if isHovering {
                                 Button(action: {
-                                    if SCContext.streamType == .idevice {
-                                        AVOutputClass.shared.stopRecording()
-                                    } else {
-                                        SCContext.stopRecording()
-                                    }
+                                    StatusBarController.shared.stop()
                                 }, label: {
                                     ZStack {
                                         Image(systemName: "circle.fill")
@@ -96,11 +88,7 @@ struct StatusBarItem: View {
                         } else {
                             Group {
                                 Button(action: {
-                                    if SCContext.streamType == .idevice {
-                                        AVOutputClass.shared.stopRecording()
-                                    } else {
-                                        SCContext.stopRecording()
-                                    }
+                                    StatusBarController.shared.stop()
                                 }, label: {
                                     ZStack {
                                         Image(systemName: "circle.fill")
@@ -113,7 +101,7 @@ struct StatusBarItem: View {
                                             .frame(width: 16, alignment: .center)
                                     }
                                 }).buttonStyle(.plain)
-                                if SCContext.streamType != .idevice {//&& SCContext.streamType != .systemaudio {
+                                if SCContext.streamType != .idevice {
                                     Button(action: {
                                         SCContext.pauseRecording()
                                     }, label: {
@@ -135,24 +123,7 @@ struct StatusBarItem: View {
                 .popover(isPresented: $popoverState.isShowing, arrowEdge: .bottom) {
                     CameraPopoverView(closePopover: { popoverState.isShowing = false })
                 }
-                .onReceive(updateTimer) { t in
-                    recordingLength = SCContext.getRecordingLength()
-                    let timePassed = Date.now.timeIntervalSince(SCContext.startTime ?? t)
-                    if SCContext.autoStop != 0 && timePassed / 60 >= CGFloat(SCContext.autoStop) { SCContext.stopRecording() }
-                    if let visible = statusBarItem.button?.window?.occlusionState.contains(.visible) {
-                        if visible { NSApp.windows.first(where: { $0.title == "Recording Controller".local })?.close(); return }
-                        if SCContext.streamType != nil  && !visible && !(NSApp.windows.first(where: { $0.title == "Recording Controller".local })?.isVisible ?? false) {
-                            guard let screen = SCContext.getScreenWithMouse() else { return }
-                            let width = getStatusBarWidth()
-                            let wX = (screen.frame.width - width) / 2
-                            let contentView = NSHostingView(rootView: StatusBarItem())
-                            contentView.frame = NSRect(x: wX, y: screen.visibleFrame.maxY, width: width, height: 24)
-                            controlPanel.setFrame(contentView.frame, display: true)
-                            controlPanel.contentView = contentView
-                            controlPanel.makeKeyAndOrderFront(nil)
-                        }
-                    }
-                }
+                .onReceive(updateTimer) { _ in recordingLength = SCContext.getRecordingLength() }
                 if !miniStatusBar {
                     if SCContext.streamType != .systemaudio {
                         if SCContext.streamType != .idevice {
@@ -188,29 +159,6 @@ struct StatusBarItem: View {
                         }
                     }
                 }
-            } else if ud.bool(forKey: "showMenubar") {
-                Button(action: {
-                    popoverState.isShowing = true
-                }, label: {
-                    ZStack {
-                        Color.white.opacity(0.0001)
-                        Image(systemName: "dot.circle.and.hand.point.up.left.fill")
-                            .font(.system(size: 14, weight: .medium))
-                            .offset(y: 1)
-                    }
-                })
-                .buttonStyle(.plain)
-                .popover(isPresented: $popoverState.isShowing, arrowEdge: .bottom) {
-                    if #available(macOS 13, *) {
-                        ContentViewNew().onAppear{ closeAllWindow() }
-                    } else {
-                        ContentView(fromStatusBar: true)
-                            .onAppear{
-                                closeAllWindow()
-                                if isMacOS12 { NSApp.activate(ignoringOtherApps: true) }
-                            }
-                    }
-                }
             }
         }
         .onTapGesture {}
@@ -222,19 +170,133 @@ struct StatusBarItem: View {
     }
 }
 
-func updateStatusBar() {
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-        if SCContext.streamType == nil && !ud.bool(forKey: "showMenubar") {
-            statusBarItem.isVisible = false
+// Native status item: SwiftUI controls hosted inside NSStatusBarButton no longer receive clicks
+// on recent macOS menu bars, so clicks go through the button's action and a standard NSMenu.
+final class StatusBarController: NSObject {
+    static let shared = StatusBarController()
+    let popover: NSPopover = {
+        let popover = NSPopover()
+        popover.behavior = .transient
+        return popover
+    }()
+    private var timer: Timer?
+
+    func update() {
+        guard let button = statusBarItem.button else { return }
+        button.subviews.forEach { $0.removeFromSuperview() }
+        button.target = self
+        button.action = #selector(clicked)
+        button.imagePosition = .imageLeading
+        button.font = .monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .medium)
+        button.setAccessibilityLabel("Kurip")
+        if SCContext.streamType != nil {
+            popover.performClose(nil)
+            if timer == nil {
+                let t = Timer(timeInterval: 0.5, repeats: true) { [weak self] _ in self?.tick() }
+                RunLoop.main.add(t, forMode: .common)
+                timer = t
+            }
+            tick()
+            statusBarItem.isVisible = true
+        } else {
+            timer?.invalidate()
+            timer = nil
+            button.title = ""
+            button.image = NSImage(systemSymbolName: "dot.circle.and.hand.point.up.left.fill", accessibilityDescription: "Kurip")
+            statusBarItem.isVisible = ud.bool(forKey: "showMenubar")
+        }
+    }
+
+    private func tick() {
+        guard SCContext.streamType != nil, let button = statusBarItem.button else { return }
+        let symbol = SCContext.isPaused ? "pause.circle.fill" : "record.circle"
+        button.image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)?
+            .withSymbolConfiguration(.init(paletteColors: [SCContext.isPaused ? .systemOrange : .systemRed]))
+        button.title = " " + SCContext.getRecordingLength()
+
+        if let start = SCContext.startTime, SCContext.autoStop != 0,
+           Date.now.timeIntervalSince(start) / 60 >= Double(SCContext.autoStop) { stop(); return }
+
+        guard let visible = button.window?.occlusionState.contains(.visible) else { return }
+        if visible { controlPanel.close(); return }
+        if !controlPanel.isVisible, let screen = SCContext.getScreenWithMouse() {
+            let width = getStatusBarWidth()
+            let contentView = NSHostingView(rootView: StatusBarItem())
+            contentView.frame = NSRect(x: (screen.frame.width - width) / 2, y: screen.visibleFrame.maxY, width: width, height: 24)
+            controlPanel.setFrame(contentView.frame, display: true)
+            controlPanel.contentView = contentView
+            controlPanel.makeKeyAndOrderFront(nil)
+        }
+    }
+
+    func stop() {
+        if SCContext.streamType == .idevice { AVOutputClass.shared.stopRecording() } else { SCContext.stopRecording() }
+    }
+
+    @objc private func clicked() {
+        guard let button = statusBarItem.button else { return }
+        guard let type = SCContext.streamType else {
+            if popover.isShown { popover.performClose(nil); return }
+            if #available(macOS 13, *) {
+                showPopover(ContentViewNew().onAppear { closeAllWindow() })
+            } else {
+                showPopover(ContentView(fromStatusBar: true).onAppear {
+                    closeAllWindow()
+                    NSApp.activate(ignoringOtherApps: true)
+                })
+            }
             return
         }
-        guard let button = statusBarItem.button else { return }
-        //let width = SCContext.streamType == nil ? 36 : ((SCContext.streamType == .idevice || SCContext.streamType == .systemaudio) ? 138 : 158)
-        let iconView = NSHostingView(rootView: StatusBarItem().padding(.top, isMacOS14 ? -2 : -1))
-        iconView.frame = NSRect(x: 0, y: 1, width: getStatusBarWidth(), height: isMacOS14 ? 22 : 21)
-        button.subviews = [iconView]
-        button.frame = iconView.frame
-        button.setAccessibilityLabel("QuickRecorder")
-        statusBarItem.isVisible = true
+        let menu = NSMenu()
+        menu.addItem(item("Stop Recording", symbol: "stop.circle") { [weak self] in self?.stop() })
+        if type != .idevice {
+            menu.addItem(item("Pause / Resume", symbol: SCContext.isPaused ? "play.circle" : "pause.circle") { [weak self] in
+                SCContext.pauseRecording()
+                self?.tick()
+            })
+        }
+        if type == .idevice {
+            menu.addItem(item("Show / Hide Device Window", symbol: "apps.ipad") {
+                if deviceWindow.isVisible { deviceWindow.close() } else { deviceWindow.orderFront(nil) }
+            })
+        } else if type != .systemaudio {
+            menu.addItem(.separator())
+            let cam = item("Camera Overlay…", symbol: "camera") { [weak self] in
+                self?.showPopover(CameraPopoverView(closePopover: { self?.popover.performClose(nil) }))
+            }
+            cam.state = SCContext.isCameraRunning() ? .on : .off
+            menu.addItem(cam)
+        }
+        statusBarItem.menu = menu
+        button.performClick(nil)
+        statusBarItem.menu = nil
     }
+
+    private func showPopover<V: View>(_ view: V) {
+        guard let button = statusBarItem.button else { return }
+        popover.contentViewController = NSHostingController(rootView: view)
+        popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+        popover.contentViewController?.view.window?.makeKey()
+    }
+
+    private func item(_ title: String, symbol: String, action: @escaping () -> Void) -> NSMenuItem {
+        let item = ClosureMenuItem(title: title.local, action: action)
+        item.image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)
+        return item
+    }
+}
+
+private final class ClosureMenuItem: NSMenuItem {
+    private let handler: () -> Void
+    init(title: String, action: @escaping () -> Void) {
+        handler = action
+        super.init(title: title, action: #selector(run), keyEquivalent: "")
+        target = self
+    }
+    required init(coder: NSCoder) { fatalError() }
+    @objc private func run() { handler() }
+}
+
+func updateStatusBar() {
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { StatusBarController.shared.update() }
 }

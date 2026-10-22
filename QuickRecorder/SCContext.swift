@@ -231,7 +231,7 @@ class SCContext {
         ud.setValue(false, forKey: "recordMic")
         DispatchQueue.main.async {
             let alert = createAlert(title: "Permission Required",
-                                                       message: "QuickRecorder needs permission to record your microphone.",
+                                                       message: "Kurip needs permission to record your microphone.",
                                                        button1: "Open Settings",
                                                        button2: "Cancel")
             if alert.runModal() == .alertFirstButtonReturn {
@@ -243,7 +243,7 @@ class SCContext {
     private static func requestPermissions() {
         DispatchQueue.main.async {
             let alert = createAlert(title: "Permission Required",
-                                                       message: "QuickRecorder needs screen recording permissions, even if you only intend on recording audio.",
+                                                       message: "Kurip needs screen recording permissions, even if you only intend on recording audio.",
                                                        button1: "Open Settings",
                                                        button2: "Cancel")
             if alert.runModal() == .alertFirstButtonReturn {
@@ -261,7 +261,7 @@ class SCContext {
         case .denied:
             DispatchQueue.main.async {
                 let alert = createAlert(title: "Permission Required",
-                                                           message: "QuickRecorder needs this permission to record your camera or mobile device.",
+                                                           message: "Kurip needs this permission to record your camera or mobile device.",
                                                            button1: "Open Settings",
                                                            button2: "Cancel")
                 if alert.runModal() == .alertFirstButtonReturn {

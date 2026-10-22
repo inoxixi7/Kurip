@@ -65,17 +65,17 @@ struct GeneralView: View {
                         }
                     SDivider()
                 }
-                SToggle("Show QuickRecorder on Dock", isOn: $showOnDock)
+                SToggle("Show Kurip on Dock", isOn: $showOnDock)
                     //.disabled(!showMenubar)
                 SDivider()
-                SToggle("Show QuickRecorder on Menu Bar", isOn: $showMenubar)
+                SToggle("Show Kurip on Menu Bar", isOn: $showMenubar)
                     //.disabled(!showOnDock)
             }
             SGroupBox(label: "Update") { UpdaterSettingsView(updater: updaterController.updater) }
             VStack(spacing: 8) {
                 CheckForUpdatesView(updater: updaterController.updater)
                 if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
-                    Text("QuickRecorder v\(appVersion)")
+                    Text("Kurip v\(appVersion)")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -139,7 +139,7 @@ struct RecorderView: View {
                 SToggle("Open video trimmer after recording", isOn: $trimAfterRecord)
             }
             SGroupBox {
-                SToggle("Exclude QuickRecorder itself", isOn: $hideSelf)
+                SToggle("Exclude Kurip itself", isOn: $hideSelf)
                 SDivider()
                 if #available (macOS 13, *) {
                     SToggle("Include Menu Bar in Recording", isOn: $includeMenuBar)

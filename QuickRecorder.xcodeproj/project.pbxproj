@@ -492,24 +492,25 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"QuickRecorder/Preview Content\"";
 				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = L4T783637F;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = 6F4565J75R;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = QuickRecorder/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "QuickRecorder needs this permission to record your camera and mobile device.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Kurip needs this permission to record your camera and mobile device.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 lihaoyun6. All rights reserved.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "QuickRecorder needs this permission to record your voice.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Kurip needs this permission to record your voice.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MARKETING_VERSION = 1.6.9;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lihaoyun6.QuickRecorder;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.inoxixi7.Kurip;
+				PRODUCT_MODULE_NAME = QuickRecorder;
+				PRODUCT_NAME = Kurip;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -529,24 +530,25 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"QuickRecorder/Preview Content\"";
 				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = L4T783637F;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = 6F4565J75R;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = QuickRecorder/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "QuickRecorder needs this permission to record your camera and mobile device.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Kurip needs this permission to record your camera and mobile device.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 lihaoyun6. All rights reserved.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "QuickRecorder needs this permission to record your voice.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Kurip needs this permission to record your voice.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MARKETING_VERSION = 1.6.9;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lihaoyun6.QuickRecorder;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.inoxixi7.Kurip;
+				PRODUCT_MODULE_NAME = QuickRecorder;
+				PRODUCT_NAME = Kurip;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
