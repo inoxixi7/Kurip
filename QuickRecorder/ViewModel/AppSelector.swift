@@ -228,19 +228,23 @@ struct OptionsView: View {
             .buttonStyle(.borderless)
             .fixedSize()
             Divider().frame(height: 44)
-            VStack(alignment: .leading, spacing: rowSpacing) {
-                HStack(spacing: 6) {
+            // chips in columns: each fixedSize column takes its widest chip and the others stretch to it
+            HStack(alignment: .bottom, spacing: 6) {
+                VStack(spacing: rowSpacing) {
                     if #available(macOS 15, *) {
-                        ToggleChip(title: "HDR", symbol: "sparkles", isOn: $recordHDR).help("Record HDR".local)
+                        ToggleChip(title: "HDR", symbol: "sparkles", isOn: $recordHDR, expand: true).help("Record HDR".local)
                     }
-                    ToggleChip(title: "Cursor", symbol: "cursorarrow", isOn: $showMouse).help("Record Cursor".local)
-                }
-                HStack(spacing: 6) {
                     if #available(macOS 13, *) {
-                        ToggleChip(title: "App Audio", symbol: "speaker.wave.2.fill", isOn: $recordWinSound).help("App's Audio".local)
+                        ToggleChip(title: "App Audio", symbol: "speaker.wave.2.fill", isOn: $recordWinSound, expand: true).help("App's Audio".local)
                     }
-                    micChip
-                }
+                }.fixedSize(horizontal: true, vertical: false)
+                VStack(spacing: rowSpacing) {
+                    ToggleChip(title: "Cursor", symbol: "cursorarrow", isOn: $showMouse, expand: true).help("Record Cursor".local)
+                    ToggleChip(title: "Mic", symbol: "mic.fill", isOn: $recordMic, expand: true)
+                        .disabled(micList.isEmpty)
+                        .onChange(of: recordMic) { _ in Task { await SCContext.performMicCheck() }}
+                }.fixedSize(horizontal: true, vertical: false)
+                micExtras.frame(height: rowHeight) // centred on the mic chip's row
             }
         }
         .onAppear {
@@ -249,16 +253,13 @@ struct OptionsView: View {
         }
     }
 
-    // split button: the left half toggles the mic, the chevron picks the device
     private func micOption(_ title: String, tag: String) -> some View {
         Toggle(title, isOn: Binding(get: { micDevice == tag }, set: { _ in micDevice = tag }))
     }
 
-    private var micChip: some View {
+    // sits beside the mic chip: device menu, plus the AEC warning when it applies
+    private var micExtras: some View {
         HStack(spacing: 4) {
-            ToggleChip(title: "Mic", symbol: "mic.fill", isOn: $recordMic)
-                .disabled(micList.isEmpty)
-                .onChange(of: recordMic) { _ in Task { await SCContext.performMicCheck() }}
             Menu {
                 micOption("Default".local, tag: "default")
                 Divider()
