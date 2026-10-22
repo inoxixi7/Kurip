@@ -196,7 +196,7 @@
 "Min" = "較小";
 "Mid" = "中等";
 "Max" = "最大";
-"Window Area" = "錄製視窗範圍";
+"Window Area" = "選取視窗";
 "Click on a window to select its area\nor press Esc to cancel." = "點選任意視窗來獲取其範圍並進行錄製\n或者按 Esc 鍵退出選擇";
 "Trim" = "修剪影片";
 "Make GIF" = "製作 GIF";

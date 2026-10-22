@@ -75,137 +75,127 @@ struct resizeView: View {
     }
 }
 
+private struct ToolbarButton: View {
+    let symbol: String
+    let title: String
+    let action: () -> Void
+    @State private var hovering = false
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Image(systemName: symbol).font(.system(size: 16, weight: .medium)).frame(height: 18)
+                Text(title).font(.system(size: 11, weight: .medium)).monospacedDigit().lineLimit(1).fixedSize()
+            }
+            .foregroundStyle(hovering ? .primary : .secondary)
+            .padding(.horizontal, 8)
+            .frame(minWidth: 64, minHeight: 50)
+            .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(.primary.opacity(hovering ? 0.08 : 0)))
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering = $0 }
+    }
+}
+
 struct AreaSelector: View {
     @State private var isPopoverShowing = false
     @State private var resizePopoverShowing = false
     @State private var autoStop = 0
     @State private var nsWindow: NSWindow?
+    @AppStorage("areaWidth")  private var areaWidth: Int = 600
+    @AppStorage("areaHeight") private var areaHeight: Int = 450
     
     var screen: SCDisplay!
     var appDelegate = AppDelegate.shared
     
     var body: some View {
-        ZStack {
-            Color(nsColor: NSColor.windowBackgroundColor)
-                .cornerRadius(10)
-            VStack {
-                HStack(spacing: 6) {
-                    Spacer()
-                    Button(action: {
-                        nsWindow?.close()
-                        for w in NSApp.windows.filter({$0.title == "Area Selector".local }) { w.close() }
-                        appDelegate.stopGlobalMouseMonitor()
-                        WindowHighlighter.shared.registerMouseMonitor(mode: 2)
-                    }, label: {
-                        VStack(spacing:0){
-                            ZStack {
-                                Image(systemName: "circle.fill")
-                                    .font(.system(size: 36))
-                                    .foregroundStyle(.green)
-                                Image("window.select")
-                                    .resizable().scaledToFit()
-                                    .foregroundStyle(.black)
-                                    .frame(width: 27)
-                                    .offset(y: 0.5)
-                                    .blendMode(.destinationOut)
-                            }
-                            .compositingGroup()
-                            .frame(width: 42, height: 41)
-                            Text("Window Area")
-                                .foregroundStyle(.secondary)
-                                .font(.system(size: 12))
-                        }
-                    }).buttonStyle(.plain)
-                    Button(action: {
-                        resizePopoverShowing = true
-                    }, label: {
-                        VStack{
-                            Image(systemName: "viewfinder.circle.fill")
-                                .font(.system(size: 36))
-                                .foregroundStyle(.blue)
-                            Text("Resize")
-                                .foregroundStyle(.secondary)
-                                .font(.system(size: 12))
-                        }
-                    })
-                    .buttonStyle(.plain)
-                    .sheet(isPresented: $resizePopoverShowing, content: {
-                        HStack(spacing: 10) {
-                            Button(action: {
-                                resizePopoverShowing = false
-                            }, label: {
-                                VStack{
-                                    Image(systemName: "arrow.uturn.backward.circle.fill")
-                                        .font(.system(size: 30))
-                                        .foregroundStyle(.secondary)
-                                    Text("Back")
-                                        .foregroundStyle(.secondary)
-                                        .font(.system(size: 12))
-                                }
-                                
-                            }).buttonStyle(.plain)
-                            resizeView(screen: screen)
-                        }.padding()
-                    })
-                    Spacer()
-                    OptionsView().padding(.horizontal, 10)
-                    Spacer()
-                    Button(action: {
-                        isPopoverShowing = true
-                    }, label: {
-                        Image(systemName: "timer")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundStyle(.blue)
-                    })
-                    .buttonStyle(.plain)
-                    .padding(.top, 42.5)
-                    .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom, content: {
-                        HStack {
-                            Text(" Stop after".local)
-                            TextField("", value: $autoStop, formatter: NumberFormatter())
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                            Stepper("", value: $autoStop)
-                                .padding(.leading, -10)
-                            Text("minutes ".local)
-                        }
-                        .fixedSize()
-                        .padding()
-                    })
-                    Button(action: {
-                        startRecording()
-                    }, label: {
-                        VStack{
-                            Image(systemName: "record.circle.fill")
-                                .font(.system(size: 36))
-                                .foregroundStyle(.red)
-                            Text("Start")
-                                .foregroundStyle(.secondary)
-                                .font(.system(size: 12))
-                        }
-                    }).buttonStyle(.plain)
-                    Spacer()
-                }
-            }.padding(.horizontal, 10)
-            Button(action: {
-                /*for w in NSApp.windows.filter({ $0.title == "Area Selector".local || $0.title == "Start Recording".local}) { w.close() }
-                if let monitor = keyMonitor {
-                    NSEvent.removeMonitor(monitor)
-                    keyMonitor = nil
-                }
-                appDelegate.stopGlobalMouseMonitor()*/
-                nsWindow?.close()
-            }, label: {
-                Image(systemName: "x.circle")
-                    .font(.system(size: 12, weight: .bold))
+        HStack(spacing: 10) {
+            Button(action: { nsWindow?.close() }, label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 10, weight: .bold))
                     .foregroundStyle(.secondary)
+                    .frame(width: 22, height: 22)
+                    .background(Circle().fill(.primary.opacity(0.08)))
             })
             .buttonStyle(.plain)
-            .padding(.top, -39)
-            .padding(.leading, -389)
             .keyboardShortcut(.cancelAction)
+            .help("Close".local)
+            ToolbarButton(symbol: "macwindow", title: "Window Area".local) {
+                nsWindow?.close()
+                for w in NSApp.windows.filter({$0.title == "Area Selector".local }) { w.close() }
+                appDelegate.stopGlobalMouseMonitor()
+                WindowHighlighter.shared.registerMouseMonitor(mode: 2)
+            }
+            ToolbarButton(symbol: "arrow.up.left.and.arrow.down.right", title: "\(areaWidth) × \(areaHeight)") {
+                resizePopoverShowing = true
+            }
+            .help("Resize".local)
+            .sheet(isPresented: $resizePopoverShowing, content: {
+                HStack(spacing: 10) {
+                    Button(action: {
+                        resizePopoverShowing = false
+                    }, label: {
+                        VStack{
+                            Image(systemName: "arrow.uturn.backward.circle.fill")
+                                .font(.system(size: 30))
+                                .foregroundStyle(.secondary)
+                            Text("Back")
+                                .foregroundStyle(.secondary)
+                                .font(.system(size: 12))
+                        }
+                    }).buttonStyle(.plain)
+                    resizeView(screen: screen)
+                }.padding()
+            })
+            Divider().frame(height: 40)
+            OptionsView()
+            Spacer(minLength: 0)
+            Button(action: { isPopoverShowing = true }, label: {
+                HStack(spacing: 3) {
+                    Image(systemName: "timer")
+                    if autoStop > 0 { Text("\(autoStop)′").monospacedDigit() }
+                }
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(autoStop > 0 ? Color.accentColor : .secondary)
+                .frame(minWidth: 30, minHeight: 30)
+                .background(Capsule().fill(.primary.opacity(0.06)))
+            })
+            .buttonStyle(.plain)
+            .help(" Stop after".local + "…")
+            .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom, content: {
+                HStack {
+                    Text(" Stop after".local)
+                    TextField("", value: $autoStop, formatter: NumberFormatter())
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                    Stepper("", value: $autoStop)
+                        .padding(.leading, -10)
+                    Text("minutes ".local)
+                }
+                .fixedSize()
+                .padding()
+            })
+            Button(action: { startRecording() }, label: {
+                HStack(spacing: 7) {
+                    Circle().fill(.white).frame(width: 10, height: 10)
+                    Text("Start").font(.system(size: 13, weight: .semibold))
+                }
+                .foregroundStyle(.white)
+                .padding(.horizontal, 16)
+                .frame(height: 34)
+                .background(Capsule().fill(Color.red))
+                .shadow(color: .red.opacity(0.35), radius: 6, y: 2)
+            })
+            .buttonStyle(.plain)
         }
+        .padding(.horizontal, 14)
+        .frame(width: 860, height: 88)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(nsColor: .windowBackgroundColor)) // opaque: a material turns muddy over the dimmed screen mask
+                .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(.primary.opacity(0.1)))
+                .shadow(color: .black.opacity(0.3), radius: 12, y: 4)
+        )
         .focusable(false)
-        .frame(width: 790, height: 90)
         .background(WindowAccessor(onWindowOpen: { w in nsWindow = w }, onWindowClose: {
             DispatchQueue.main.async {
                 for w in NSApp.windows.filter({ $0.title == "Area Selector".local }) { w.close() }
