@@ -94,6 +94,7 @@ struct ToolbarButton: View {
             .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(.primary.opacity(hovering ? 0.08 : 0)))
         }
         .buttonStyle(.plain)
+        .fixedSize() // long translations must widen the button, not spill past its hover background
         .onHover { hovering = $0 }
     }
 }
@@ -154,7 +155,8 @@ struct AreaSelector: View {
             StartButton { startRecording() }
         }
         .padding(.horizontal, 14)
-        .frame(width: 860, height: 88)
+        .frame(minWidth: 860, minHeight: 88, maxHeight: 88)
+        .fixedSize(horizontal: true, vertical: false) // grows for long translations
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(Color(nsColor: .windowBackgroundColor)) // opaque: a material turns muddy over the dimmed screen mask

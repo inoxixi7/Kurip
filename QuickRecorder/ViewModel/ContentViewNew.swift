@@ -11,11 +11,7 @@ import ScreenCaptureKit
 
 struct ContentViewNew: View {
     @State private var isPopoverShowing = false
-    @State private var micList = SCContext.getMicrophone()
-    @AppStorage("enableAEC") private var enableAEC: Bool = true
-    @AppStorage("recordMic") private var recordMic: Bool = false
-    @AppStorage("recordWinSound") private var recordWinSound: Bool = true
-    @AppStorage("micDevice") private var micDevice: String = "default"
+    @State private var audioPopoverShowing = false
 
     var horizontal = false
     var appDelegate = AppDelegate.shared
@@ -39,11 +35,6 @@ struct ContentViewNew: View {
                 HStack(spacing: 12) {
                     HStack(spacing: 6) { Group { tiles }.frame(width: 92) }
                     Divider().frame(height: 64)
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack(spacing: 6) { appAudioChip; micChip }
-                        HStack(spacing: 4) { devicePicker.frame(width: 170); aecWarning }
-                    }
-                    Divider().frame(height: 64)
                     VStack(spacing: 4) {
                         FooterButton(symbol: "xmark", help: "Close") { closeMainWindow() }
                         settingsButton
@@ -53,13 +44,6 @@ struct ContentViewNew: View {
             } else {
                 VStack(spacing: 10) {
                     LazyVGrid(columns: columns, spacing: 6) { tiles }
-                    Divider()
-                    HStack(spacing: 6) {
-                        appAudioChip
-                        micChip
-                        devicePicker.frame(maxWidth: .infinity)
-                        aecWarning
-                    }
                     HStack {
                         Text("Kurip").font(.system(size: 11, weight: .semibold)).foregroundStyle(.tertiary)
                         Spacer()
@@ -89,18 +73,79 @@ struct ContentViewNew: View {
             closeMainWindow()
             appDelegate.createNewWindow(view: AppSelector(), title: "App Selector".local)
         }
-        ModeTile(title: "Audio Only", symbol: "waveform") {
-            if let display = SCContext.getSCDisplayWithMouse() {
-                closeMainWindow()
-                appDelegate.createCountdownPanel(screen: display) {
-                    AppDelegate.shared.prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil)
+        // the audio sources only matter here; video modes set them in their own options bar
+        ModeTile(title: "Audio Only", symbol: "waveform") { audioPopoverShowing = true }
+            .popover(isPresented: $audioPopoverShowing, arrowEdge: .bottom) {
+                AudioOnlyPopover {
+                    audioPopoverShowing = false
+                    if let display = SCContext.getSCDisplayWithMouse() {
+                        closeMainWindow()
+                        appDelegate.createCountdownPanel(screen: display) {
+                            AppDelegate.shared.prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil)
+                        }
+                    }
                 }
             }
-        }
         ModeTile(title: "Device", symbol: "iphone") { isPopoverShowing = true }
             .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) {
                 iDevicePopoverView(closePopover: { isPopoverShowing = false })
             }
+    }
+
+    private var settingsButton: some View {
+        FooterButton(symbol: "gearshape", help: "Preferences") {
+            closeMainWindow()
+            appDelegate.openSettingPanel()
+        }
+    }
+
+    private var quitButton: some View {
+        FooterButton(symbol: "power", help: "Quit") {
+            let alert = createAlert(level: .informational, title: "Quit Kurip?", message: "", button1: "Quit", button2: "Cancel")
+            if alert.runModal() == .alertFirstButtonReturn { NSApp.terminate(nil) }
+        }
+    }
+
+    private func recordArea() {
+        closeMainWindow()
+        SCContext.updateAvailableContent {
+            DispatchQueue.main.async {
+                appDelegate.showAreaSelector(size: NSSize(width: 600, height: 450))
+                var currentDisplay = SCContext.getSCDisplayWithMouse()
+                mouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved, .rightMouseDown, .leftMouseDown, .otherMouseDown]) { event in
+                    let display = SCContext.getSCDisplayWithMouse()
+                    if display != currentDisplay {
+                        currentDisplay = display
+                        closeAllWindow()
+                        appDelegate.showAreaSelector(size: NSSize(width: 600, height: 450))
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+private struct AudioOnlyPopover: View {
+    let onStart: () -> Void
+    @State private var micList = SCContext.getMicrophone()
+    @AppStorage("enableAEC") private var enableAEC: Bool = true
+    @AppStorage("recordMic") private var recordMic: Bool = false
+    @AppStorage("recordWinSound") private var recordWinSound: Bool = true
+    @AppStorage("micDevice") private var micDevice: String = "default"
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Audio Only".local).font(.system(size: 13, weight: .semibold))
+            HStack(spacing: 6) { appAudioChip; micChip }
+            HStack(spacing: 4) { devicePicker; aecWarning }
+            HStack {
+                Spacer()
+                StartButton(action: onStart).disabled(!recordWinSound && !recordMic)
+            }
+        }
+        .padding(14)
+        .frame(width: 280)
     }
 
     private var appAudioChip: some View {
@@ -133,35 +178,6 @@ struct ContentViewNew: View {
             }
             .buttonStyle(.plain)
             .help("Compatibility Warning".local)
-        }
-    }
-
-    private var settingsButton: some View {
-        FooterButton(symbol: "gearshape", help: "Preferences") {
-            closeMainWindow()
-            appDelegate.openSettingPanel()
-        }
-    }
-
-    private var quitButton: some View {
-        FooterButton(symbol: "power", help: "Quit") { NSApp.terminate(nil) }
-    }
-
-    private func recordArea() {
-        closeMainWindow()
-        SCContext.updateAvailableContent {
-            DispatchQueue.main.async {
-                appDelegate.showAreaSelector(size: NSSize(width: 600, height: 450))
-                var currentDisplay = SCContext.getSCDisplayWithMouse()
-                mouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved, .rightMouseDown, .leftMouseDown, .otherMouseDown]) { event in
-                    let display = SCContext.getSCDisplayWithMouse()
-                    if display != currentDisplay {
-                        currentDisplay = display
-                        closeAllWindow()
-                        appDelegate.showAreaSelector(size: NSSize(width: 600, height: 450))
-                    }
-                }
-            }
         }
     }
 
