@@ -20,15 +20,6 @@
       }
     },
     {
-      "identity" : "matrixcolorselector",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/lihaoyun6/MatrixColorSelector.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "0853e68c0c9b205ffe6a963f2a56b26e6ceca51a"
-      }
-    },
-    {
       "identity" : "sparkle",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sparkle-project/Sparkle",

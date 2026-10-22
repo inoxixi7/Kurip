@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		181724052BE3BEA600F5F539 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 181724042BE3BEA600F5F539 /* Sparkle */; };
 		1821F2E82CF4B226004A2EC0 /* ContentViewNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1821F2E72CF4B226004A2EC0 /* ContentViewNew.swift */; };
-		184506CE2C69213400AFDA45 /* MatrixColorSelector in Frameworks */ = {isa = PBXBuildFile; productRef = 184506CD2C69213400AFDA45 /* MatrixColorSelector */; };
 		184CAEC72BDCCC2300D61D57 /* AVContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184CAEC62BDCCC2300D61D57 /* AVContext.swift */; };
 		184CAEC92BDDEC6800D61D57 /* AppBlockSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184CAEC82BDDEC6800D61D57 /* AppBlockSelector.swift */; };
 		185582A62D1D1CC100F0CF47 /* AECAudioStream in Frameworks */ = {isa = PBXBuildFile; productRef = 185582A52D1D1CC100F0CF47 /* AECAudioStream */; };
@@ -104,7 +103,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				184506CE2C69213400AFDA45 /* MatrixColorSelector in Frameworks */,
 				181724052BE3BEA600F5F539 /* Sparkle in Frameworks */,
 				18AFF77B2D5F91F800C795A1 /* KeyboardShortcuts in Frameworks */,
 				18F40B492BFB988A00F0AC70 /* SwiftLAME in Frameworks */,
@@ -224,7 +222,6 @@
 			packageProductDependencies = (
 				181724042BE3BEA600F5F539 /* Sparkle */,
 				18F40B482BFB988A00F0AC70 /* SwiftLAME */,
-				184506CD2C69213400AFDA45 /* MatrixColorSelector */,
 				185582A52D1D1CC100F0CF47 /* AECAudioStream */,
 				18AFF77A2D5F91F800C795A1 /* KeyboardShortcuts */,
 			);
@@ -264,7 +261,6 @@
 			packageReferences = (
 				181724032BE3BEA600F5F539 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				18F40B472BFB988A00F0AC70 /* XCRemoteSwiftPackageReference "SwiftLAME" */,
-				184506CC2C69213400AFDA45 /* XCRemoteSwiftPackageReference "MatrixColorSelector" */,
 				185582A42D1D1CC100F0CF47 /* XCRemoteSwiftPackageReference "AECAudioStream" */,
 				18AFF7792D5F91F800C795A1 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
 			);
@@ -601,14 +597,6 @@
 				minimumVersion = 2.6.0;
 			};
 		};
-		184506CC2C69213400AFDA45 /* XCRemoteSwiftPackageReference "MatrixColorSelector" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/lihaoyun6/MatrixColorSelector.git";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 		185582A42D1D1CC100F0CF47 /* XCRemoteSwiftPackageReference "AECAudioStream" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/lihaoyun6/AECAudioStream.git";
@@ -640,11 +628,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 181724032BE3BEA600F5F539 /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
-		};
-		184506CD2C69213400AFDA45 /* MatrixColorSelector */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 184506CC2C69213400AFDA45 /* XCRemoteSwiftPackageReference "MatrixColorSelector" */;
-			productName = MatrixColorSelector;
 		};
 		185582A52D1D1CC100F0CF47 /* AECAudioStream */ = {
 			isa = XCSwiftPackageProductDependency;

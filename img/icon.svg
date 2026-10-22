@@ -2,38 +2,18 @@
   <!-- Kurip app icon source. Render: ./img/render-icon.sh -->
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#4A2C1C"/>
-      <stop offset="1" stop-color="#1F120B"/>
+      <stop offset="0" stop-color="#FFF8EE"/>
+      <stop offset="1" stop-color="#F3E2CA"/>
     </linearGradient>
-    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.16"/>
-      <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0"/>
+    <linearGradient id="nut" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#B8622E"/>
+      <stop offset="1" stop-color="#8A3D18"/>
     </linearGradient>
-    <radialGradient id="nut" cx="0.38" cy="0.32" r="0.8">
-      <stop offset="0" stop-color="#E39257"/>
-      <stop offset="0.45" stop-color="#B0582A"/>
-      <stop offset="1" stop-color="#5E2610"/>
-    </radialGradient>
-    <linearGradient id="base" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#F1DDBB"/>
-      <stop offset="1" stop-color="#C9A57A"/>
-    </linearGradient>
-    <radialGradient id="shine" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.7"/>
-      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="rec" cx="0.4" cy="0.35" r="0.7">
-      <stop offset="0" stop-color="#FF7A6E"/>
-      <stop offset="1" stop-color="#E0261C"/>
-    </radialGradient>
     <clipPath id="nutClip">
-      <path id="nutPath" d="M512 312 C566 326 642 378 684 452 C724 524 716 604 692 646 C660 704 590 734 512 734 C434 734 364 704 332 646 C308 604 300 524 340 452 C382 378 458 326 512 312 Z"/>
+      <path id="nutPath" d="M512 268 C574 284 660 344 706 428 C750 508 742 598 714 646 C678 712 598 746 512 746 C426 746 346 712 310 646 C282 598 274 508 318 428 C364 344 450 284 512 268 Z"/>
     </clipPath>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#000" flood-opacity="0.35"/>
-    </filter>
-    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="14"/>
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#5A3418" flood-opacity="0.28"/>
     </filter>
   </defs>
 
@@ -41,34 +21,11 @@
   <g filter="url(#shadow)">
     <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#bg)"/>
   </g>
-  <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#glass)"/>
-  <rect x="101.5" y="101.5" width="821" height="821" rx="184.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="3"/>
-
-  <!-- viewfinder corners: screen capture -->
-  <g fill="none" stroke="#FFFFFF" stroke-opacity="0.92" stroke-width="30" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M252 372 V292 A30 30 0 0 1 282 262 H362"/>
-    <path d="M662 262 H742 A30 30 0 0 1 772 292 V372"/>
-    <path d="M772 652 V732 A30 30 0 0 1 742 762 H662"/>
-    <path d="M362 762 H282 A30 30 0 0 1 252 732 V652"/>
-  </g>
 
   <!-- chestnut: kuri -->
-  <g filter="url(#shadow)">
-    <use href="#nutPath" fill="url(#nut)"/>
-  </g>
-  <g clip-path="url(#nutClip)">
-    <path d="M296 610 C404 664 620 664 728 610 L728 760 L296 760 Z" fill="url(#base)"/>
-    <g fill="#8A6440" fill-opacity="0.35">
-      <circle cx="430" cy="680" r="5"/><circle cx="470" cy="700" r="4"/><circle cx="512" cy="684" r="5"/>
-      <circle cx="556" cy="702" r="4"/><circle cx="596" cy="682" r="5"/><circle cx="452" cy="716" r="3.5"/>
-      <circle cx="534" cy="718" r="3.5"/><circle cx="492" cy="670" r="3"/><circle cx="574" cy="668" r="3"/>
-    </g>
-    <ellipse cx="446" cy="436" rx="78" ry="42" transform="rotate(-38 446 436)" fill="url(#shine)"/>
-  </g>
-  <path d="M500 322 L512 286 L524 322 Z" fill="#D9B98E"/>
+  <use href="#nutPath" fill="url(#nut)"/>
+  <path d="M290 604 C410 664 614 664 734 604 L734 760 L290 760 Z" fill="#E0BC8C" clip-path="url(#nutClip)"/>
 
   <!-- recording dot -->
-  <circle cx="686" cy="350" r="42" fill="#FF3B30" opacity="0.35" filter="url(#soft)"/>
-  <circle cx="686" cy="350" r="30" fill="url(#rec)"/>
-  <circle cx="686" cy="350" r="30" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="3"/>
+  <circle cx="724" cy="300" r="54" fill="#FF3B30"/>
 </svg>

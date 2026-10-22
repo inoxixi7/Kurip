@@ -9,7 +9,6 @@ import SwiftUI
 import Sparkle
 import ServiceManagement
 import KeyboardShortcuts
-import MatrixColorSelector
 
 private enum SettingsPage: String, CaseIterable, Identifiable {
     case general = "General", recorder = "Recorder", audio = "Audio", output = "Output", hotkey = "Hotkey", blocklist = "Blocklist"
@@ -209,7 +208,7 @@ struct RecorderView: View {
 
     var body: some View {
         SForm(spacing: 10) {
-            SGroupBox(label: "Recorder") {
+            SGroupBox {
                 SSteper("Delay Before Recording", value: $countdown, min: 0, max: 99)
                 SDivider()
                 if #available(macOS 14, *) {
@@ -217,12 +216,9 @@ struct RecorderView: View {
                     SDivider()
                 }
                 SItem(label: "Custom Background Color") {
-                    if #unavailable(macOS 13) {
-                        ColorPicker("", selection: $userColor)
-                    } else {
-                        MatrixColorSelector("", selection: $userColor)
-                            .onChange(of: userColor) { userColor in ud.setColor(userColor, forKey: "userColor") }
-                    }
+                    // the system color well, which also saves on macOS 12
+                    ColorPicker("", selection: $userColor, supportsOpacity: false)
+                        .onChange(of: userColor) { userColor in ud.setColor(userColor, forKey: "userColor") }
                 }
             }
             SGroupBox {
@@ -373,7 +369,7 @@ struct OutputView: View {
 struct HotkeyView: View {
     var body: some View {
         SForm(spacing: 10) {
-            SGroupBox(label: "Hotkey") {
+            SGroupBox {
                 SItem(label: "Open Main Panel") { ShortcutRecorder(name: .showPanel) }
             }
             SGroupBox {
@@ -403,7 +399,7 @@ struct BlocklistView: View {
     var body: some View {
         if #available(macOS 13, *) {
             SForm {
-                SGroupBox(label: "Blocklist") { BundleSelector() }
+                SGroupBox { BundleSelector() }
                 Text("These apps will be excluded when recording \"Screen\" or \"Screen Area\"\nBut if the app is launched after the recording starts, it cannot be excluded.")
                     .font(.footnote)
                     .foregroundColor(.secondary)

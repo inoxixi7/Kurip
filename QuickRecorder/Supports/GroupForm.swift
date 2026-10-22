@@ -278,7 +278,29 @@ struct SSteper: View {
         self.max = max
     }
     
+    @Environment(\.nativeForm) private var nativeForm
+
     var body: some View {
+        if nativeForm {
+            // field and stepper side by side at their natural size, as in System Settings
+            HStack(spacing: 6) {
+                Text(title)
+                Spacer()
+                if let tips = tips { SInfoButton(tips: tips) }
+                TextField("", value: $value, formatter: NumberFormatter())
+                    .labelsHidden()
+                    .textFieldStyle(.roundedBorder)
+                    .multilineTextAlignment(.trailing)
+                    .frame(width: width)
+                    .onChange(of: value) { newValue in value = Swift.min(Swift.max(newValue, min), max) }
+                Stepper("", value: $value, in: min...max).labelsHidden()
+            }
+        } else {
+            legacy
+        }
+    }
+
+    private var legacy: some View {
         HStack(spacing: 0) {
             Text(title)
             Spacer()
