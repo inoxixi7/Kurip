@@ -214,7 +214,7 @@ struct OptionsView: View {
     @AppStorage("highRes")        private var highRes: Int = 2
     @AppStorage("recordHDR")      private var recordHDR: Bool = false
     @AppStorage("micDevice")      private var micDevice: String = "default"
-    @AppStorage("enableAEC")      private var enableAEC: Bool = false
+    @AppStorage("enableAEC")      private var enableAEC: Bool = true
     
     var body: some View {
         VStack(spacing: 6) {

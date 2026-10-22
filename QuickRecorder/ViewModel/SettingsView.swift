@@ -163,8 +163,8 @@ struct OutputView: View {
     @AppStorage("pixelFormat")      private var pixelFormat: PixFormat = .delault
     @AppStorage("background")       private var background: BackgroundType = .wallpaper
     @AppStorage("remuxAudio")       private var remuxAudio: Bool = true
-    @AppStorage("enableAEC")        private var enableAEC: Bool = false
-    @AppStorage("AECLevel")         private var AECLevel: String = "mid"
+    @AppStorage("enableAEC")        private var enableAEC: Bool = true
+    @AppStorage("AECLevel")         private var AECLevel: String = "min"
     @AppStorage("withAlpha")        private var withAlpha: Bool = false
     @AppStorage("saveDirectory")    private var saveDirectory: String?
 

@@ -604,6 +604,8 @@ extension AppDelegate {
             }
             break
         case .audio:
+            // Voice processing (AEC) ducks other apps' audio even at the "min" level; undo it so the other party isn't quieter
+            if recordMic && enableAEC && micDevice == "default" { SampleBuffer.applyGain(aecDuckingCompensation) }
             if SCContext.streamType == .systemaudio { // write directly to file if not video recording
                 hideMousePointer = true
                 if SCContext.vW != nil && SCContext.vW?.status == .writing, SCContext.startTime == nil {
@@ -703,7 +705,22 @@ class AudioRecorder: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
 
 // https://developer.apple.com/documentation/screencapturekit/capturing_screen_content_in_macos
 // For Sonoma updated to https://developer.apple.com/forums/thread/727709
+// shortcut: ~8 dB measured for the "min" ducking level on MacBook speakers; make it adaptive if other setups differ
+let aecDuckingCompensation: Float = 2.5
+
 extension CMSampleBuffer {
+    func applyGain(_ gain: Float) {
+        guard let flags = formatDescription?.audioStreamBasicDescription?.mFormatFlags, flags & kAudioFormatFlagIsFloat != 0 else { return }
+        try? withAudioBufferList { audioBufferList, _ in
+            for buffer in audioBufferList {
+                guard let samples = buffer.mData?.assumingMemoryBound(to: Float.self) else { continue }
+                for i in 0..<Int(buffer.mDataByteSize) / MemoryLayout<Float>.size {
+                    samples[i] = max(-1, min(1, samples[i] * gain))
+                }
+            }
+        }
+    }
+
     var asPCMBuffer: AVAudioPCMBuffer? {
         try? self.withAudioBufferList { audioBufferList, _ -> AVAudioPCMBuffer? in
             guard let absd = self.formatDescription?.audioStreamBasicDescription else { return nil }
